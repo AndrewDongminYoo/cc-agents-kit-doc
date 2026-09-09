@@ -65,7 +65,7 @@ trunk check --no-fix
 
 `src/content.ts` is the canonical source for the visible bilingual facts.
 The build renders initial static HTML at `/en/` and `/ko/`.
-It also generates Markdown alternatives, `robots.txt`, `sitemap.xml`, and `llms.txt`.
+It also generates Markdown alternatives with a frontmatter block, `robots.txt`, `sitemap.xml`, a navigation index at `llms.txt`, the full bilingual content at `llms-full.txt`, and an HTML and a Markdown 404 page.
 
 The application retains React, Vite, and Tailwind with the Sera theme direction.
 The Sera direction uses warm taupe surfaces, an ink text color, a restrained rust accent, thin rules, Playfair Display, and Noto Sans.
@@ -74,7 +74,8 @@ Knip checks project usage, and Oxlint runs as part of the lint checks.
 ## Deployment
 
 The site is published at `https://skills.donminzzi.kr/` from Vercel, which runs `pnpm build:release` with `SITE_URL` set to that origin.
-`vercel.json` also rewrites `/`, `/en/`, and `/ko/` to their Markdown alternatives when a request prefers `text/markdown`, adds `Vary: Accept` to those routes, and marks hashed assets immutable.
+`vercel.json` also routes `/`, the locale roots, and the trust pages to their Markdown alternatives when a request names `text/markdown` in `Accept`, serves the Markdown 404 to such a request on an unknown path, adds `Vary: Accept` to every negotiated response, and marks hashed assets immutable.
+Those rules live in `routes`, not `rewrites`, because Vercel resolves the filesystem before `rewrites` and the HTML file would win.
 
 After a deployment, test public redirects, 404 responses, cache behavior, crawler policies, and the external scan separately; the local preview server proves the output, not the host.
 
