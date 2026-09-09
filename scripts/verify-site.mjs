@@ -154,6 +154,56 @@ async function verifyStaticOutput() {
   )
   await access(path.join(outputDirectory, socialImage))
   await access(path.join(outputDirectory, "favicon.svg"))
+  await verifyTrustPages(sitemap)
+}
+
+// Trust pages exist in both locales, carry the configured origin, and hold enough content to count as real pages.
+async function verifyTrustPages(sitemap) {
+  const minimumCharacters = 500
+
+  for (const locale of ["en", "ko"]) {
+    for (const pageId of ["about", "contact", "privacy"]) {
+      const html = await readFile(
+        path.join(outputDirectory, locale, pageId, "index.html"),
+        "utf8"
+      )
+      const markdown = await readFile(
+        path.join(outputDirectory, locale, pageId, "index.md"),
+        "utf8"
+      )
+      const pagePath = `/${locale}/${pageId}/`
+
+      requireMatch(
+        html,
+        new RegExp(`<html lang="${locale}">`),
+        `${pagePath} language is missing.`
+      )
+      assert.ok(
+        html.includes(
+          `<link rel="canonical" href="${expectedOrigin}${pagePath}"`
+        ),
+        `${pagePath} canonical URL is missing.`
+      )
+      assert.ok(
+        html.includes(
+          `<link rel="alternate" type="text/markdown" href="${expectedOrigin}${pagePath}index.md"`
+        ),
+        `${pagePath} Markdown alternative is missing.`
+      )
+      assert.ok(
+        html.replace(/<[^>]+>/g, "").length >= minimumCharacters,
+        `${pagePath} has fewer than ${minimumCharacters} characters of content.`
+      )
+      assert.ok(
+        markdown.length >= minimumCharacters,
+        `${pagePath}index.md has fewer than ${minimumCharacters} characters.`
+      )
+      assert.ok(
+        sitemap.includes(`${expectedOrigin}${pagePath}`),
+        `sitemap.xml lacks ${pagePath}.`
+      )
+    }
+  }
 }
 
 async function verifyPreviewBehavior() {
@@ -175,6 +225,10 @@ async function verifyPreviewBehavior() {
     })
     const markdownPreferred = await fetch(`${baseUrl}/en/`, {
       headers: { accept: "text/markdown;q=1, text/html;q=0" },
+    })
+    const trustPage = await fetch(`${baseUrl}/ko/privacy/`)
+    const trustMarkdown = await fetch(`${baseUrl}/en/about`, {
+      headers: { accept: "text/markdown" },
     })
     const missing = await fetch(`${baseUrl}/not-a-route`)
     const missingHead = await fetch(`${baseUrl}/not-a-route`, {
@@ -215,6 +269,21 @@ async function verifyPreviewBehavior() {
       markdownPreferred.headers.get("content-type") ?? "",
       /^text\/markdown/,
       "Markdown must win when HTML is unacceptable."
+    )
+    assert.equal(
+      trustPage.status,
+      200,
+      "Trust pages must be served from their directory route."
+    )
+    assert.match(
+      await trustPage.text(),
+      /<html lang="ko">/,
+      "The Korean trust page returned the wrong document."
+    )
+    assert.match(
+      trustMarkdown.headers.get("content-type") ?? "",
+      /^text\/markdown/,
+      "Trust pages must negotiate Markdown."
     )
     assert.equal(
       missing.status,

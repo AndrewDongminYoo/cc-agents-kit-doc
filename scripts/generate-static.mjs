@@ -137,6 +137,60 @@ ${headScripts}
 `
 }
 
+// Trust pages share the site stylesheet but not the React bundle; their content is static prose.
+function trustPageHtml({ locale, page, siteUrl, release, styles, imagePath }) {
+  const pagePath = `/${locale}/${page.id}/`
+  const otherLocale = locale === "en" ? "ko" : "en"
+  const robots = release ? "index,follow" : "noindex,nofollow"
+  const headStyles = styles
+    .map((stylesheet) => `    <link rel="stylesheet" href="/${stylesheet}" />`)
+    .join("\n")
+  const sections = page.sections
+    .map(
+      (section) =>
+        `      <section>\n        <h2>${escapeHtml(section.heading)}</h2>\n${section.paragraphs
+          .map((paragraph) => `        <p>${escapeHtml(paragraph)}</p>`)
+          .join("\n")}\n      </section>`
+    )
+    .join("\n")
+
+  return `<!doctype html>
+<html lang="${locale}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>${escapeHtml(page.title)} · cc-agents-kit</title>
+    <meta name="description" content="${escapeHtml(page.description)}" />
+    <meta name="robots" content="${robots}" />
+    <link rel="canonical" href="${urlFor(siteUrl, pagePath)}" />
+    <link rel="alternate" hreflang="en" href="${urlFor(siteUrl, `/en/${page.id}/`)}" />
+    <link rel="alternate" hreflang="ko" href="${urlFor(siteUrl, `/ko/${page.id}/`)}" />
+    <link rel="alternate" hreflang="x-default" href="${urlFor(siteUrl, `/en/${page.id}/`)}" />
+    <link rel="alternate" type="text/markdown" href="${urlFor(siteUrl, `${pagePath}index.md`)}" title="${escapeHtml(page.title)} Markdown" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="cc-agents-kit" />
+    <meta property="og:title" content="${escapeHtml(page.title)}" />
+    <meta property="og:description" content="${escapeHtml(page.description)}" />
+    <meta property="og:url" content="${urlFor(siteUrl, pagePath)}" />
+    <meta property="og:image" content="${urlFor(siteUrl, imagePath)}" />
+${headStyles}
+  </head>
+  <body>
+    <div class="site-shell">
+      <main id="main-content" class="prose-page">
+        <p class="eyebrow"><a href="/${locale}/">cc-agents-kit</a></p>
+        <h1>${escapeHtml(page.title)}</h1>
+        <p class="prose-page__lead">${escapeHtml(page.description)}</p>
+${sections}
+        <p class="prose-page__alternate"><a href="/${otherLocale}/${page.id}/" hreflang="${otherLocale}">${otherLocale === "ko" ? "한국어" : "English"}</a></p>
+      </main>
+    </div>
+  </body>
+</html>
+`
+}
+
 async function writeOutput(relativePath, contents) {
   const outputPath = path.join(outputDirectory, relativePath)
   await mkdir(path.dirname(outputPath), { recursive: true })
@@ -163,6 +217,8 @@ async function main() {
 
   const {
     getMarkdown,
+    getPageMarkdown,
+    getPages,
     release: productRelease,
     renderApp,
     site,
@@ -191,6 +247,24 @@ async function main() {
 
     await writeOutput(`${locale}/index.html`, page)
     await writeOutput(`${locale}/index.md`, getMarkdown(locale))
+
+    for (const trustPage of getPages(locale)) {
+      await writeOutput(
+        `${locale}/${trustPage.id}/index.html`,
+        trustPageHtml({
+          locale,
+          page: trustPage,
+          siteUrl,
+          release,
+          styles,
+          imagePath,
+        })
+      )
+      await writeOutput(
+        `${locale}/${trustPage.id}/index.md`,
+        getPageMarkdown(trustPage)
+      )
+    }
   }
 
   const englishPage = await readFile(
@@ -208,13 +282,27 @@ async function main() {
       ? `User-agent: *\nAllow: /\nSitemap: ${urlFor(siteUrl, "/sitemap.xml")}\n`
       : "User-agent: *\nDisallow: /\n"
   )
+  const sitemapPaths = locales.flatMap((locale) => [
+    `/${locale}/`,
+    ...getPages(locale).map((trustPage) => `/${locale}/${trustPage.id}/`),
+  ])
   await writeOutput(
     "sitemap.xml",
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${urlFor(siteUrl, "/en/")}</loc></url>\n  <url><loc>${urlFor(siteUrl, "/ko/")}</loc></url>\n</urlset>\n`
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapPaths
+      .map((pathname) => `  <url><loc>${urlFor(siteUrl, pathname)}</loc></url>`)
+      .join("\n")}\n</urlset>\n`
   )
+  const trustLinks = locales
+    .flatMap((locale) =>
+      getPages(locale).map(
+        (trustPage) =>
+          `- ${trustPage.title}: ${urlFor(siteUrl, `/${locale}/${trustPage.id}/`)}`
+      )
+    )
+    .join("\n")
   await writeOutput(
     "llms.txt",
-    `# ${site.productName}\n\n${siteMeta.en.description}\n\n- English: ${urlFor(siteUrl, "/en/")}\n- Korean: ${urlFor(siteUrl, "/ko/")}\n- Source: ${site.sourceUrl}\n- Owner: ${site.ownerUrl}\n\n## English\n\n${getMarkdown("en")}\n\n## Korean\n\n${getMarkdown("ko")}\n`
+    `# ${site.productName}\n\n${siteMeta.en.description}\n\n- English: ${urlFor(siteUrl, "/en/")}\n- Korean: ${urlFor(siteUrl, "/ko/")}\n- Source: ${site.sourceUrl}\n- Owner: ${site.ownerUrl}\n${trustLinks}\n\n## English\n\n${getMarkdown("en")}\n\n## Korean\n\n${getMarkdown("ko")}\n`
   )
 
   await rm(serverOutputDirectory, { recursive: true, force: true })

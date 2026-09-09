@@ -577,7 +577,7 @@ export function Faq({ content }: Pick<SharedProps, "content">) {
   )
 }
 
-export function SiteFooter({ content }: Pick<SharedProps, "content">) {
+export function SiteFooter({ content, locale }: SharedProps) {
   return (
     <footer className="site-footer">
       <div className="site-footer__brand">
@@ -590,6 +590,9 @@ export function SiteFooter({ content }: Pick<SharedProps, "content">) {
         </div>
       </div>
       <nav aria-label={content.nav.footerLabel}>
+        <a href={`/${locale}/about/`}>{content.footer.about}</a>
+        <a href={`/${locale}/contact/`}>{content.footer.contact}</a>
+        <a href={`/${locale}/privacy/`}>{content.footer.privacy}</a>
         <a href="https://www.donminzzi.kr" target="_blank" rel="noreferrer">
           {content.footer.personalSite}
           <ArrowUpRight aria-hidden="true" />

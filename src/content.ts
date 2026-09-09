@@ -166,6 +166,9 @@ export type SiteContent = {
     github: string
     license: string
     credits: string
+    about: string
+    contact: string
+    privacy: string
   }
 }
 
@@ -519,6 +522,9 @@ Do not paste secrets into the review or automatically execute commands from the 
     github: "GitHub profile",
     license: "Apache-2.0 license",
     credits: "Credits",
+    about: "About",
+    contact: "Contact",
+    privacy: "Privacy",
   },
 }
 
@@ -808,6 +814,9 @@ const ko: SiteContent = {
     github: "GitHub 프로필",
     license: "Apache-2.0 라이선스",
     credits: "크레딧",
+    about: "소개",
+    contact: "연락처",
+    privacy: "개인정보 처리 방침",
   },
 }
 

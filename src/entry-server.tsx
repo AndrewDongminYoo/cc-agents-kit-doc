@@ -7,6 +7,7 @@ import {
   siteMeta,
   sourceRepositoryUrl,
 } from "./content.ts"
+import { getPageMarkdown, getPages } from "./site-pages.ts"
 
 export type Locale = "en" | "ko"
 
@@ -17,7 +18,7 @@ export const site = {
   sourceRevision: release.sha,
 } as const
 
-export { getMarkdown, release, siteMeta }
+export { getMarkdown, getPageMarkdown, getPages, release, siteMeta }
 
 export function renderApp(locale: Locale) {
   return renderToString(<App locale={locale} />)

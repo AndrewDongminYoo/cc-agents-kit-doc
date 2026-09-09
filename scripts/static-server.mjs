@@ -63,24 +63,26 @@ function wantsMarkdown(accept = "") {
   return markdownQuality > 0 && markdownQuality > htmlQuality
 }
 
+// Directory routes: the locale roots and the trust pages under them, with or without a trailing slash.
+const directoryRoute = /^\/(en|ko)(?:\/(about|contact|privacy))?\/?$/
+
 function routeFor(pathname, markdown) {
   if (pathname === "/") {
     return markdown ? "en/index.md" : "index.html"
   }
 
-  if (pathname === "/en" || pathname === "/en/") {
-    return markdown ? "en/index.md" : "en/index.html"
-  }
+  const match = directoryRoute.exec(pathname)
 
-  if (pathname === "/ko" || pathname === "/ko/") {
-    return markdown ? "ko/index.md" : "ko/index.html"
+  if (match) {
+    const directory = match[2] ? `${match[1]}/${match[2]}` : match[1]
+    return markdown ? `${directory}/index.md` : `${directory}/index.html`
   }
 
   return pathname.slice(1)
 }
 
 function isNegotiableRoute(pathname) {
-  return ["/", "/en", "/en/", "/ko", "/ko/"].includes(pathname)
+  return pathname === "/" || directoryRoute.test(pathname)
 }
 
 async function sendNotFound(response, sendBody) {

@@ -35,7 +35,7 @@ function App({ locale }: { locale: Locale }) {
           <Requirements content={content} />
           <Faq content={content} />
         </main>
-        <SiteFooter content={content} />
+        <SiteFooter content={content} locale={locale} />
       </div>
     </LucideProvider>
   )
