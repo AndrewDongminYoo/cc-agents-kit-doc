@@ -71,13 +71,17 @@ The application retains React, Vite, and Tailwind with the Sera theme direction.
 The Sera direction uses warm taupe surfaces, an ink text color, a restrained rust accent, thin rules, Playfair Display, and Noto Sans.
 Knip checks project usage, and Oxlint runs as part of the lint checks.
 
-## Deployment limits
+## Deployment
 
-No public deployment URL is configured yet.
-The Vercel static configuration must use `pnpm build:release` so release metadata has a real public origin.
+The site is published at `https://skills.donminzzi.kr/` from Vercel, which runs `pnpm build:release` with `SITE_URL` set to that origin.
+`vercel.json` also rewrites `/`, `/en/`, and `/ko/` to their Markdown alternatives when a request prefers `text/markdown`, adds `Vary: Accept` to those routes, and marks hashed assets immutable.
 
-Local Markdown alternatives do not prove that a static host supports `Accept`-header content negotiation.
-After deployment, test public redirects, 404 responses, cache behavior, crawler policies, and the external scan separately.
+After a deployment, test public redirects, 404 responses, cache behavior, crawler policies, and the external scan separately; the local preview server proves the output, not the host.
+
+## Trust pages
+
+`src/site-pages.ts` holds the About, Contact, and Privacy pages in both languages.
+The build renders them at `/en/<page>/` and `/ko/<page>/` as static HTML with a Markdown twin, adds them to the sitemap and `llms.txt`, and the validator requires at least 500 characters of content on each.
 
 ## References
 

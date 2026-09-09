@@ -92,8 +92,19 @@ Its negative fixtures must fail before a clean run is accepted.
 
 ## Publication settings
 
-The user has not supplied a public domain or website repository URL at this point.
-Use build settings for both instead of publishing an invented destination.
+The public domain and the website repository URL were not known when the site was built, so both are build settings rather than values in the source.
 Keep local preview pages out of search indexes.
 Require a real HTTPS origin for the release build.
 Publishing and a public Is Agentic scan remain separate actions after local delivery.
+
+On 2026-09-09 the site went live at `https://skills.donminzzi.kr/` and the website repository at `https://github.com/AndrewDongminYoo/cc-agents-kit-doc`; both are supplied through the Vercel project's environment.
+
+## Agent readiness after the first scan
+
+The first Is Agentic scan of the live site scored 77 of 100 (report: `https://is-agentic.com/scan/skills.donminzzi.kr`).
+The failures that the repository can fix were addressed the same day; search-index discoverability is left to time and a sitemap submission.
+
+- Markdown negotiation moves to `vercel.json`: a request whose `Accept` header contains `text/markdown` is rewritten to the route's `index.md`, and `Vary: Accept` is set on the negotiable routes. Vercel's header condition is a regular expression match, so q-values are not weighed; browsers never send `text/markdown`, so HTML is unaffected.
+- The 404 page gains recovery links to both language roots, the sitemap, and `llms.txt`, and a `404.md` twin exists for hosts that can serve it.
+- `llms.txt` gains a "When to use this" section in each language, derived from the same problem statements and best-fit copy that the catalogue page shows, so the guidance cannot drift from the page.
+- About, Contact, and Privacy pages are added in both languages with the operator's contact details, rendered as static prose pages that share the site stylesheet but not the React bundle. The privacy text describes only what the site and the plugins actually do: no cookies, no analytics, no telemetry, and best-effort output masking.
