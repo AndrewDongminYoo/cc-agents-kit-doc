@@ -51,6 +51,26 @@
       "headers": {
         "Vary": "Accept"
       }
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": {
+            "re": "text/markdown"
+          }
+        }
+      ],
+      "dest": "/404.md",
+      "status": 404,
+      "headers": {
+        "Vary": "Accept"
+      }
     }
   ],
   "headers": [
