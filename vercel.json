@@ -3,20 +3,39 @@
   "installCommand": "pnpm install --frozen-lockfile",
   "outputDirectory": "dist",
   "trailingSlash": true,
-  "rewrites": [
+  "routes": [
     {
-      "source": "/",
+      "src": "^/$",
       "has": [
-        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+        {
+          "type": "header",
+          "key": "accept",
+          "value": { "re": "text/markdown" }
+        }
       ],
-      "destination": "/en/index.md"
+      "dest": "/en/index.md"
     },
     {
-      "source": "/:locale(en|ko)/",
+      "src": "^/(en|ko)/$",
       "has": [
-        { "type": "header", "key": "accept", "value": ".*text/markdown.*" }
+        {
+          "type": "header",
+          "key": "accept",
+          "value": { "re": "text/markdown" }
+        }
       ],
-      "destination": "/:locale/index.md"
+      "dest": "/$1/index.md"
+    },
+    {
+      "src": "^/(en|ko)/(about|contact|privacy)/$",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": { "re": "text/markdown" }
+        }
+      ],
+      "dest": "/$1/$2/index.md"
     }
   ],
   "headers": [
@@ -30,6 +49,14 @@
     },
     {
       "source": "/:locale(en|ko)/index.md",
+      "headers": [{ "key": "Vary", "value": "Accept" }]
+    },
+    {
+      "source": "/:locale(en|ko)/:page(about|contact|privacy)/",
+      "headers": [{ "key": "Vary", "value": "Accept" }]
+    },
+    {
+      "source": "/:locale(en|ko)/:page(about|contact|privacy)/index.md",
       "headers": [{ "key": "Vary", "value": "Accept" }]
     },
     {
