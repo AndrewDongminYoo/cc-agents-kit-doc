@@ -1,19 +1,40 @@
-import { Button } from "@/components/ui/button"
+import { useState } from "react"
 
-export function App() {
+import {
+  Faq,
+  Hero,
+  MarketplaceInstall,
+  Installation,
+  PluginCatalogue,
+  Requirements,
+  SiteFooter,
+  SiteHeader,
+} from "@/components/site/site-sections"
+import { getContent, type Locale, type PluginId } from "@/content"
+
+function App({ locale }: { locale: Locale }) {
+  const content = getContent(locale)
+  const [selectedPlugin, setSelectedPlugin] = useState<PluginId>("guard-hooks")
+
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
+    <div className="site-shell">
+      <MarketplaceInstall content={content} />
+      <SiteHeader content={content} locale={locale} />
+      <main id="main-content">
+        <Hero content={content} />
+        <PluginCatalogue
+          content={content}
+          locale={locale}
+          selectedPlugin={selectedPlugin}
+          onSelect={setSelectedPlugin}
+        />
+        <div className="install-drawer">
+          <Installation content={content} selectedPlugin={selectedPlugin} />
         </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
+        <Requirements content={content} />
+        <Faq content={content} />
+      </main>
+      <SiteFooter content={content} />
     </div>
   )
 }

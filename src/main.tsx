@@ -1,14 +1,20 @@
 import { StrictMode } from "react"
-import { createRoot } from "react-dom/client"
+import { createRoot, hydrateRoot } from "react-dom/client"
 
 import "./index.css"
 import App from "./App.tsx"
-import { ThemeProvider } from "@/components/theme-provider.tsx"
 
-createRoot(document.getElementById("root")!).render(
+const root = document.getElementById("root")!
+const locale = /^\/ko(?:\/|$)/.test(window.location.pathname) ? "ko" : "en"
+document.documentElement.lang = locale
+const app = (
   <StrictMode>
-    <ThemeProvider>
-      <App />
-    </ThemeProvider>
+    <App locale={locale} />
   </StrictMode>
 )
+
+if (root.hasChildNodes()) {
+  hydrateRoot(root, app)
+} else {
+  createRoot(root).render(app)
+}
