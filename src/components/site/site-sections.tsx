@@ -131,12 +131,12 @@ function CopyBlock({
           onClick={copyToClipboard}
           aria-describedby={statusId}
           aria-label={`${copy}: ${label}`}
+          data-state={copyState}
         >
-          {copyState === "copied" ? (
-            <Check aria-hidden="true" />
-          ) : (
-            <Clipboard aria-hidden="true" />
-          )}
+          <span className="copy-button__icon" aria-hidden="true">
+            <Clipboard />
+            <Check />
+          </span>
           {copyState === "copied" ? copied : copy}
         </button>
       </div>
@@ -352,7 +352,7 @@ export function PluginCatalogue({
             className="tool-detail"
             aria-labelledby="tool-title"
           >
-            <div key={activeTool} className="tool-detail__content">
+            <div className="tool-detail__content">
               <p className="eyebrow">{content.explorer.example}</p>
               <h3 id="tool-title">{example.title}</h3>
               <div className="tool-example">

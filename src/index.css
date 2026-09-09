@@ -26,6 +26,8 @@
   font-family: var(--font-body);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   --text-hero: clamp(3rem, 4.3vw, 4.5rem);
   --text-section: clamp(2rem, 2.8vw, 2.75rem);
   --text-item: clamp(1.5rem, 2.2vw, 2rem);
@@ -241,9 +243,11 @@ button {
   right: 0;
   width: min(20rem, calc(100vw - 2rem));
   padding: 0.45rem;
-  border: 1px solid var(--line);
   background: var(--paper-soft);
-  box-shadow: 0 1.3rem 3rem rgba(37, 31, 27, 0.15);
+  box-shadow:
+    0 0 0 1px rgba(37, 31, 27, 0.08),
+    0 0.25rem 0.6rem rgba(37, 31, 27, 0.06),
+    0 1.3rem 3rem rgba(37, 31, 27, 0.15);
 }
 
 .github-menu__panel > a,
@@ -423,6 +427,7 @@ main,
 }
 
 .text-link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
@@ -433,6 +438,14 @@ main,
 
   font-size: var(--text-label);
   font-weight: 730;
+}
+
+/* Extend small inline links to a 44px hit area without changing their layout. */
+.text-link::before,
+.site-footer nav a::before {
+  position: absolute;
+  inset: -0.85rem 0;
+  content: "";
 }
 
 .text-link svg {
@@ -531,6 +544,11 @@ main,
   font-size: var(--text-label);
   font-weight: 700;
   text-transform: uppercase;
+  transition: scale 100ms ease;
+}
+
+.copy-button:active {
+  scale: 0.96;
 }
 
 .copy-block--inverse .copy-button {
@@ -543,9 +561,35 @@ main,
   background: var(--rust);
 }
 
-.copy-button svg {
+.copy-button__icon {
+  position: relative;
+  display: inline-grid;
   width: 0.8rem;
   height: 0.8rem;
+}
+
+.copy-button__icon svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition:
+    opacity 300ms cubic-bezier(0.2, 0, 0, 1),
+    scale 300ms cubic-bezier(0.2, 0, 0, 1),
+    filter 300ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.copy-button__icon svg:last-child,
+.copy-button[data-state="copied"] .copy-button__icon svg:first-child {
+  opacity: 0;
+  scale: 0.25;
+  filter: blur(4px);
+}
+
+.copy-button[data-state="copied"] .copy-button__icon svg:last-child {
+  opacity: 1;
+  scale: 1;
+  filter: blur(0);
 }
 
 .copy-block pre {
@@ -726,6 +770,7 @@ main,
   letter-spacing: -0.04em;
 
   line-height: 1.35;
+  text-wrap: balance;
 }
 
 .limits > p {
@@ -793,10 +838,11 @@ main,
   grid-column: 2;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 0.7rem 1.3rem;
+  gap: 1.75rem 1.3rem;
 }
 
 .site-footer nav a {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -929,8 +975,8 @@ main,
   }
 
   .github-menu summary {
-    min-width: 2.5rem;
-    min-height: 2.5rem;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
     justify-content: center;
     padding: 0;
   }
@@ -1008,18 +1054,6 @@ main,
 
   .faq__heading {
     margin-bottom: 3rem;
-  }
-}
-
-@keyframes reveal {
-  from {
-    opacity: 0;
-    transform: translateY(1rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -1110,6 +1144,7 @@ dd {
   margin: 0 0 1.5rem;
   font-size: 1.125rem;
   font-weight: 650;
+  text-wrap: balance;
 }
 
 .explorer__interactive {
@@ -1136,6 +1171,7 @@ dd {
   cursor: pointer;
   transition:
     background-color 150ms ease,
+    border-left-color 150ms ease,
     color 150ms ease;
 }
 
@@ -1171,6 +1207,7 @@ dd {
   width: 1rem;
   height: 1rem;
   opacity: 0;
+  transition: opacity 150ms ease;
 }
 
 .problem-picker [aria-pressed="true"] svg {
@@ -1193,6 +1230,7 @@ dd {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
+  text-wrap: balance;
 }
 
 .tool-picker {
@@ -1216,11 +1254,17 @@ dd {
   overflow-wrap: anywhere;
   transition:
     background-color 150ms ease,
-    color 150ms ease;
+    border-color 150ms ease,
+    color 150ms ease,
+    scale 100ms ease;
 }
 
 .tool-picker button:hover {
   border-color: var(--taupe);
+}
+
+.tool-picker button:active {
+  scale: 0.96;
 }
 
 .tool-picker button[aria-pressed="true"] {
@@ -1230,8 +1274,10 @@ dd {
 }
 
 .tool-detail {
-  padding: clamp(1.25rem, 3vw, 2.25rem);
-  border-radius: 0.75rem;
+  /* Outer radius = inner card radius + padding, so nested corners stay concentric. */
+  --tool-pad: clamp(1.25rem, 3vw, 2.25rem);
+  padding: var(--tool-pad);
+  border-radius: calc(var(--tool-pad) + 0.25rem);
   background: var(--paper-soft);
 }
 
@@ -1254,7 +1300,7 @@ dd {
 
 .tool-example > div {
   padding: 1.15rem;
-  border-radius: 0.4rem;
+  border-radius: 0.25rem;
   background: var(--paper);
 }
 
@@ -1416,7 +1462,7 @@ dd {
   }
 
   .tool-detail {
-    padding: 1.25rem;
+    --tool-pad: 1.25rem;
   }
 
   .tool-example {
@@ -1433,9 +1479,9 @@ dd {
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .tool-detail__content {
-    animation: reveal 160ms ease-out;
+@media (prefers-reduced-motion: reduce) {
+  .copy-button__icon svg {
+    transition: none;
   }
 }
 
@@ -1533,6 +1579,7 @@ dd {
   font-size: 1.125rem;
   font-weight: 650;
   line-height: 1.5;
+  text-wrap: balance;
 }
 
 .faq__item > p {

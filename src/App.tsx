@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { LucideProvider } from "lucide-react"
 
 import {
   Faq,
@@ -17,25 +18,28 @@ function App({ locale }: { locale: Locale }) {
   const [selectedPlugin, setSelectedPlugin] = useState<PluginId>("guard-hooks")
 
   return (
-    <div className="site-shell">
-      <MarketplaceInstall content={content} />
-      <SiteHeader content={content} locale={locale} />
-      <main id="main-content">
-        <Hero content={content} />
-        <PluginCatalogue
-          content={content}
-          locale={locale}
-          selectedPlugin={selectedPlugin}
-          onSelect={setSelectedPlugin}
-        />
-        <div className="install-drawer">
-          <Installation content={content} selectedPlugin={selectedPlugin} />
-        </div>
-        <Requirements content={content} />
-        <Faq content={content} />
-      </main>
-      <SiteFooter content={content} />
-    </div>
+    // Icons are sized in CSS, so a non-scaling stroke keeps their weight matched to the bold labels beside them.
+    <LucideProvider nonScalingStroke strokeWidth={1.75}>
+      <div className="site-shell">
+        <MarketplaceInstall content={content} />
+        <SiteHeader content={content} locale={locale} />
+        <main id="main-content">
+          <Hero content={content} />
+          <PluginCatalogue
+            content={content}
+            locale={locale}
+            selectedPlugin={selectedPlugin}
+            onSelect={setSelectedPlugin}
+          />
+          <div className="install-drawer">
+            <Installation content={content} selectedPlugin={selectedPlugin} />
+          </div>
+          <Requirements content={content} />
+          <Faq content={content} />
+        </main>
+        <SiteFooter content={content} />
+      </div>
+    </LucideProvider>
   )
 }
 
