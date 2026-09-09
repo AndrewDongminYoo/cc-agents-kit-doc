@@ -85,12 +85,16 @@ function isNegotiableRoute(pathname) {
   return pathname === "/" || directoryRoute.test(pathname)
 }
 
-async function sendNotFound(response, sendBody) {
-  const fallback = path.join(outputDirectory, "404.html")
+// A client that prefers Markdown gets the Markdown 404 so it can recover from the links in it.
+async function sendNotFound(response, sendBody, markdown) {
+  const fallback = path.join(outputDirectory, markdown ? "404.md" : "404.html")
 
   response.writeHead(404, {
-    "content-type": "text/html; charset=utf-8",
+    "content-type": markdown
+      ? "text/markdown; charset=utf-8"
+      : "text/html; charset=utf-8",
     "cache-control": "no-store",
+    vary: "Accept",
   })
 
   if (!sendBody) {
@@ -141,7 +145,11 @@ export async function createStaticServer() {
         .then((entry) => entry.isFile())
         .catch(() => false))
     ) {
-      await sendNotFound(response, request.method === "GET")
+      await sendNotFound(
+        response,
+        request.method === "GET",
+        wantsMarkdown(request.headers.accept)
+      )
       return
     }
 

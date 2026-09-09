@@ -157,6 +157,41 @@ async function verifyStaticOutput() {
     /^## When to use this$/m,
     "llms.txt lacks the agent when-to-use section."
   )
+  assert.ok(
+    llms.length <= 30000,
+    "llms.txt must stay a navigation index under 30,000 characters."
+  )
+  const llmsFull = await readFile(
+    path.join(outputDirectory, "llms-full.txt"),
+    "utf8"
+  )
+  assert.ok(
+    llmsFull.includes("## English") && llmsFull.includes("## Korean"),
+    "llms-full.txt must carry both language bodies."
+  )
+  const rootMarkdown = await readFile(
+    path.join(outputDirectory, "index.md"),
+    "utf8"
+  )
+  assert.equal(
+    rootMarkdown,
+    enMarkdown,
+    "The root Markdown must be the English alias."
+  )
+  assert.match(
+    enMarkdown,
+    /^---\ntitle: .+\ndescription: .+\ncanonical: .+\nlast_updated: \d{4}-\d{2}-\d{2}\n---\n/,
+    "Served Markdown must open with a frontmatter block."
+  )
+  assert.match(
+    sitemap,
+    /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/,
+    "sitemap.xml entries must carry lastmod."
+  )
+  assert.ok(
+    enHtml.includes('"sameAs":["https://github.com/AndrewDongminYoo"]'),
+    "Structured data must link the author to a second identity."
+  )
   await access(path.join(outputDirectory, socialImage))
   await access(path.join(outputDirectory, "favicon.svg"))
   await verifyTrustPages(sitemap)
@@ -253,6 +288,9 @@ async function verifyPreviewBehavior() {
       headers: { accept: "text/markdown" },
     })
     const missing = await fetch(`${baseUrl}/not-a-route`)
+    const missingMarkdown = await fetch(`${baseUrl}/not-a-route`, {
+      headers: { accept: "text/markdown" },
+    })
     const missingHead = await fetch(`${baseUrl}/not-a-route`, {
       method: "HEAD",
     })
@@ -316,6 +354,21 @@ async function verifyPreviewBehavior() {
       await missing.text(),
       /href="\/llms\.txt"/,
       "The 404 body must link agents to llms.txt."
+    )
+    assert.equal(
+      missingMarkdown.status,
+      404,
+      "A Markdown 404 must keep the 404 status."
+    )
+    assert.match(
+      missingMarkdown.headers.get("content-type") ?? "",
+      /^text\/markdown/,
+      "A client preferring Markdown must receive the Markdown 404."
+    )
+    assert.match(
+      await missingMarkdown.text(),
+      /^# Not found/,
+      "The Markdown 404 returned the wrong document."
     )
     assert.equal(
       missingHead.status,

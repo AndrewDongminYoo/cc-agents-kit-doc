@@ -29,6 +29,11 @@ function urlFor(siteUrl, pathname) {
   return new URL(pathname, `${siteUrl}/`).href
 }
 
+// Served Markdown opens with a frontmatter block so agents get title, canonical, and freshness without parsing the body.
+function withFrontmatter({ title, description, canonical, lastUpdated }, body) {
+  return `---\ntitle: ${JSON.stringify(title)}\ndescription: ${JSON.stringify(description)}\ncanonical: ${canonical}\nlast_updated: ${lastUpdated}\n---\n\n${body}`
+}
+
 async function readManifest() {
   const manifestPath = path.join(outputDirectory, ".vite", "manifest.json")
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"))
@@ -72,6 +77,7 @@ function metadata({
       "@type": "Person",
       name: "Dongmin Yu",
       url: "https://www.donminzzi.kr",
+      sameAs: ["https://github.com/AndrewDongminYoo"],
     },
   }
 
@@ -246,6 +252,7 @@ async function main() {
   const imagePath = (await exists("og-image.png"))
     ? "/og-image.png"
     : "/og-image.svg"
+  const buildDate = new Date().toISOString().slice(0, 10)
 
   for (const locale of locales) {
     const meta = siteMeta[locale]
@@ -263,7 +270,18 @@ async function main() {
     })
 
     await writeOutput(`${locale}/index.html`, page)
-    await writeOutput(`${locale}/index.md`, getMarkdown(locale))
+    await writeOutput(
+      `${locale}/index.md`,
+      withFrontmatter(
+        {
+          title: meta.title,
+          description: meta.description,
+          canonical: urlFor(siteUrl, `/${locale}/`),
+          lastUpdated: buildDate,
+        },
+        getMarkdown(locale)
+      )
+    )
 
     for (const trustPage of getPages(locale)) {
       await writeOutput(
@@ -279,7 +297,15 @@ async function main() {
       )
       await writeOutput(
         `${locale}/${trustPage.id}/index.md`,
-        getPageMarkdown(trustPage)
+        withFrontmatter(
+          {
+            title: trustPage.title,
+            description: trustPage.description,
+            canonical: urlFor(siteUrl, `/${locale}/${trustPage.id}/`),
+            lastUpdated: buildDate,
+          },
+          getPageMarkdown(trustPage)
+        )
       )
     }
   }
@@ -288,7 +314,12 @@ async function main() {
     path.join(outputDirectory, "en", "index.html"),
     "utf8"
   )
+  const englishMarkdown = await readFile(
+    path.join(outputDirectory, "en", "index.md"),
+    "utf8"
+  )
   await writeOutput("index.html", englishPage)
+  await writeOutput("index.md", englishMarkdown)
   await writeOutput("404.html", notFoundHtml(siteUrl))
   await writeOutput("404.md", notFoundMarkdown(siteUrl))
   await writeOutput(
@@ -304,7 +335,10 @@ async function main() {
   await writeOutput(
     "sitemap.xml",
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapPaths
-      .map((pathname) => `  <url><loc>${urlFor(siteUrl, pathname)}</loc></url>`)
+      .map(
+        (pathname) =>
+          `  <url><loc>${urlFor(siteUrl, pathname)}</loc><lastmod>${buildDate}</lastmod></url>`
+      )
       .join("\n")}\n</urlset>\n`
   )
   const trustLinks = locales
@@ -315,9 +349,12 @@ async function main() {
       )
     )
     .join("\n")
+  // llms.txt stays a navigation index under the 30,000-character guideline; the full content lives in llms-full.txt.
+  const llmsIndex = `# ${site.productName}\n\n${siteMeta.en.description}\n\n- English: ${urlFor(siteUrl, "/en/")}\n- Korean: ${urlFor(siteUrl, "/ko/")}\n- English Markdown: ${urlFor(siteUrl, "/en/index.md")}\n- Korean Markdown: ${urlFor(siteUrl, "/ko/index.md")}\n- Full content in both languages: ${urlFor(siteUrl, "/llms-full.txt")}\n- Source: ${site.sourceUrl}\n- Owner: ${site.ownerUrl}\n${trustLinks}\n\n${getAgentGuidance("en")}\n\n${getAgentGuidance("ko")}\n`
+  await writeOutput("llms.txt", llmsIndex)
   await writeOutput(
-    "llms.txt",
-    `# ${site.productName}\n\n${siteMeta.en.description}\n\n- English: ${urlFor(siteUrl, "/en/")}\n- Korean: ${urlFor(siteUrl, "/ko/")}\n- Source: ${site.sourceUrl}\n- Owner: ${site.ownerUrl}\n${trustLinks}\n\n${getAgentGuidance("en")}\n\n${getAgentGuidance("ko")}\n\n## English\n\n${getMarkdown("en")}\n\n## Korean\n\n${getMarkdown("ko")}\n`
+    "llms-full.txt",
+    `${llmsIndex}\n## English\n\n${getMarkdown("en")}\n\n## Korean\n\n${getMarkdown("ko")}\n`
   )
 
   await rm(serverOutputDirectory, { recursive: true, force: true })
