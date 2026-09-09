@@ -1,0 +1,36 @@
+version: 0.1
+cli:
+  version: 1.25.0
+lint:
+  enabled:
+    - actionlint@1.6.9
+    - git-diff-check
+actions:
+  definitions:
+    - id: project-quality-pre-commit
+      description: Run the project lint and format checks before a commit.
+      display_name: Project Quality Pre-Commit
+      run: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        pnpm lint
+        pnpm format:check
+      triggers:
+        - git_hooks: [pre-commit]
+    - id: project-quality-pre-push
+      description: Run the complete project check before a push.
+      display_name: Project Quality Pre-Push
+      run: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        pnpm check
+      triggers:
+        - git_hooks: [pre-push]
+  disabled:
+    - trunk-announce
+    - trunk-check-pre-commit
+    - trunk-check-pre-push
+    - trunk-fmt-pre-commit
+  enabled:
+    - project-quality-pre-commit
+    - project-quality-pre-push
