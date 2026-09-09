@@ -50,6 +50,7 @@ function metadata({
   locale,
   meta,
   siteUrl,
+  sourceUrl,
   release,
   releaseVersion,
   imagePath,
@@ -73,6 +74,7 @@ function metadata({
     softwareVersion: releaseVersion,
     url: canonical,
     description: meta.description,
+    sameAs: [sourceUrl],
     author: {
       "@type": "Person",
       name: "Dongmin Yu",
@@ -113,6 +115,7 @@ function documentHtml({
   appHtml,
   meta,
   siteUrl,
+  sourceUrl,
   release,
   releaseVersion,
   scripts,
@@ -132,7 +135,7 @@ function documentHtml({
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>${escapeHtml(meta.title)}</title>${metadata({ locale, meta, siteUrl, release, releaseVersion, imagePath })}
+    <title>${escapeHtml(meta.title)}</title>${metadata({ locale, meta, siteUrl, sourceUrl, release, releaseVersion, imagePath })}
 ${headStyles}
   </head>
   <body>
@@ -262,6 +265,7 @@ async function main() {
       appHtml,
       meta,
       siteUrl,
+      sourceUrl: site.sourceUrl,
       release,
       releaseVersion: productRelease.version,
       scripts,
@@ -345,12 +349,12 @@ async function main() {
     .flatMap((locale) =>
       getPages(locale).map(
         (trustPage) =>
-          `- ${trustPage.title}: ${urlFor(siteUrl, `/${locale}/${trustPage.id}/`)}`
+          `- [${trustPage.title}](${urlFor(siteUrl, `/${locale}/${trustPage.id}/`)})`
       )
     )
     .join("\n")
   // llms.txt stays a navigation index under the 30,000-character guideline; the full content lives in llms-full.txt.
-  const llmsIndex = `# ${site.productName}\n\n${siteMeta.en.description}\n\n- English: ${urlFor(siteUrl, "/en/")}\n- Korean: ${urlFor(siteUrl, "/ko/")}\n- English Markdown: ${urlFor(siteUrl, "/en/index.md")}\n- Korean Markdown: ${urlFor(siteUrl, "/ko/index.md")}\n- Full content in both languages: ${urlFor(siteUrl, "/llms-full.txt")}\n- Source: ${site.sourceUrl}\n- Owner: ${site.ownerUrl}\n${trustLinks}\n\n${getAgentGuidance("en")}\n\n${getAgentGuidance("ko")}\n`
+  const llmsIndex = `# ${site.productName}\n\n${siteMeta.en.description}\n\n- [English](${urlFor(siteUrl, "/en/")})\n- [Korean](${urlFor(siteUrl, "/ko/")})\n- [English Markdown](${urlFor(siteUrl, "/en/index.md")})\n- [Korean Markdown](${urlFor(siteUrl, "/ko/index.md")})\n- [Full content in both languages](${urlFor(siteUrl, "/llms-full.txt")})\n- [Source at the pinned revision](${site.sourceUrl})\n- [Owner](${site.ownerUrl})\n${trustLinks}\n\n${getAgentGuidance("en")}\n\n${getAgentGuidance("ko")}\n`
   await writeOutput("llms.txt", llmsIndex)
   await writeOutput(
     "llms-full.txt",

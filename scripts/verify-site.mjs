@@ -192,6 +192,16 @@ async function verifyStaticOutput() {
     enHtml.includes('"sameAs":["https://github.com/AndrewDongminYoo"]'),
     "Structured data must link the author to a second identity."
   )
+  assert.match(
+    enHtml,
+    /"sameAs":\["https:\/\/github\.com\/AndrewDongminYoo\/cc-agents-kit\/tree\/[0-9a-f]{40}"\]/,
+    "Structured data must link the product to its source repository."
+  )
+  assert.match(
+    llms,
+    /^- \[[^\]]+\]\(https?:\/\/[^)]+\)$/m,
+    "llms.txt must use Markdown links for its index entries."
+  )
   await access(path.join(outputDirectory, socialImage))
   await access(path.join(outputDirectory, "favicon.svg"))
   await verifyTrustPages(sitemap)
