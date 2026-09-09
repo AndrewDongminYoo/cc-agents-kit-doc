@@ -54,37 +54,10 @@ function SectionIntro({
   )
 }
 
-function CopyBlock({
-  code,
-  label,
-  copy,
-  copied,
-  copyFailed,
-  manualCopy,
-  multiline = false,
-  inverse = false,
-}: {
-  code: string
-  label: string
-  copy: string
-  copied: string
-  copyFailed: string
-  manualCopy: string
-  multiline?: boolean
-  inverse?: boolean
-}) {
-  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
-    "idle"
-  )
-  const fallbackRef = useRef<HTMLTextAreaElement>(null)
-  const statusId = useId()
+type CopyState = "idle" | "copied" | "failed"
 
-  useEffect(() => {
-    if (copyState === "failed") {
-      fallbackRef.current?.focus()
-      fallbackRef.current?.select()
-    }
-  }, [copyState])
+function useClipboardCopy(code: string) {
+  const [copyState, setCopyState] = useState<CopyState>("idle")
 
   async function copyToClipboard() {
     let timeoutId: number | undefined
@@ -110,6 +83,48 @@ function CopyBlock({
     }
   }
 
+  return { copyState, copyToClipboard }
+}
+
+function CopyIcon() {
+  return (
+    <span className="copy-button__icon" aria-hidden="true">
+      <Clipboard />
+      <Check />
+    </span>
+  )
+}
+
+function CopyBlock({
+  code,
+  label,
+  copy,
+  copied,
+  copyFailed,
+  manualCopy,
+  multiline = false,
+  inverse = false,
+}: {
+  code: string
+  label: string
+  copy: string
+  copied: string
+  copyFailed: string
+  manualCopy: string
+  multiline?: boolean
+  inverse?: boolean
+}) {
+  const { copyState, copyToClipboard } = useClipboardCopy(code)
+  const fallbackRef = useRef<HTMLTextAreaElement>(null)
+  const statusId = useId()
+
+  useEffect(() => {
+    if (copyState === "failed") {
+      fallbackRef.current?.focus()
+      fallbackRef.current?.select()
+    }
+  }, [copyState])
+
   const status =
     copyState === "copied" ? copied : copyState === "failed" ? copyFailed : ""
 
@@ -133,10 +148,7 @@ function CopyBlock({
           aria-label={`${copy}: ${label}`}
           data-state={copyState}
         >
-          <span className="copy-button__icon" aria-hidden="true">
-            <Clipboard />
-            <Check />
-          </span>
+          <CopyIcon />
           {copyState === "copied" ? copied : copy}
         </button>
       </div>
@@ -166,24 +178,42 @@ function CopyBlock({
   )
 }
 
-export function MarketplaceInstall({ content }: Pick<SharedProps, "content">) {
+function MarketplaceCommand({ content }: Pick<SharedProps, "content">) {
+  const { copyState, copyToClipboard } = useClipboardCopy(marketplaceCommand)
+  const codeRef = useRef<HTMLElement>(null)
+  const statusId = useId()
+
+  useEffect(() => {
+    // Without clipboard access, leave the command selected so it can be copied by hand.
+    if (copyState === "failed" && codeRef.current) {
+      window.getSelection()?.selectAllChildren(codeRef.current)
+    }
+  }, [copyState])
+
+  const status =
+    copyState === "copied"
+      ? content.installation.copied
+      : copyState === "failed"
+        ? content.installation.copyFailed
+        : ""
+
   return (
-    <section
-      className="marketplace-banner"
-      aria-label={content.installation.marketplaceLabel}
-    >
-      <div>
-        <CopyBlock
-          code={marketplaceCommand}
-          label={content.installation.marketplaceLabel}
-          copy={content.installation.copy}
-          copied={content.installation.copied}
-          copyFailed={content.installation.copyFailed}
-          manualCopy={content.installation.manualCopy}
-        />
-        <p>{content.installation.marketplaceNote}</p>
-      </div>
-    </section>
+    <div className="command-pill" title={content.installation.marketplaceNote}>
+      <code ref={codeRef}>{marketplaceCommand}</code>
+      <button
+        type="button"
+        className="command-pill__copy"
+        onClick={copyToClipboard}
+        aria-describedby={statusId}
+        aria-label={`${content.installation.copy}: ${content.installation.marketplaceLabel}`}
+        data-state={copyState}
+      >
+        <CopyIcon />
+      </button>
+      <p id={statusId} className="sr-status" aria-live="polite">
+        {status}
+      </p>
+    </div>
   )
 }
 
@@ -223,6 +253,7 @@ export function SiteHeader({ content, locale }: SharedProps) {
             <small>{content.brandNote}</small>
           </span>
         </a>
+        <MarketplaceCommand content={content} />
         <div className="header-actions">
           <a
             className="language-link"

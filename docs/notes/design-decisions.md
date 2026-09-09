@@ -72,7 +72,7 @@ The Markdown representation includes the same examples, and a no-JavaScript fall
 The page removes visible product versions and SHA labels.
 The social image also omits the product version.
 The SHA remains in source links and provenance records.
-The marketplace command appears before the page header and explains that marketplace registration and plugin installation are separate.
+The marketplace command sits in the page header as a compact monospace pill with a copy control, following the Is Agentic header pattern; the command text stays in the initial HTML, and the note that marketplace registration and plugin installation are separate moves to the pill's title.
 Scope limits and runtime requirements each keep their heading and related content in one layout container.
 Installation copy distinguishes the bundle command from the need to assess individual skills and hooks.
 The review prompt asks the reader's AI to verify supported setup methods before suggesting selective adoption.

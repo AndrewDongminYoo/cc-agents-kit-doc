@@ -4,7 +4,6 @@ import { LucideProvider } from "lucide-react"
 import {
   Faq,
   Hero,
-  MarketplaceInstall,
   Installation,
   PluginCatalogue,
   Requirements,
@@ -21,7 +20,6 @@ function App({ locale }: { locale: Locale }) {
     // Icons are sized in CSS, so a non-scaling stroke keeps their weight matched to the bold labels beside them.
     <LucideProvider nonScalingStroke strokeWidth={1.75}>
       <div className="site-shell">
-        <MarketplaceInstall content={content} />
         <SiteHeader content={content} locale={locale} />
         <main id="main-content">
           <Hero content={content} />
