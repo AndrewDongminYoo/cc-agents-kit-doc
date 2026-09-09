@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm build:release",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "outputDirectory": "dist",
+  "trailingSlash": true
+}
