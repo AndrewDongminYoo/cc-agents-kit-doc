@@ -152,9 +152,15 @@ async function verifyStaticOutput() {
     llms.includes(`${expectedOrigin}/en/`),
     "llms.txt lacks the English URL."
   )
+  assert.match(
+    llms,
+    /^## When to use this$/m,
+    "llms.txt lacks the agent when-to-use section."
+  )
   await access(path.join(outputDirectory, socialImage))
   await access(path.join(outputDirectory, "favicon.svg"))
   await verifyTrustPages(sitemap)
+  await verifyNotFoundDocuments()
 }
 
 // Trust pages exist in both locales, carry the configured origin, and hold enough content to count as real pages.
@@ -203,6 +209,22 @@ async function verifyTrustPages(sitemap) {
         `sitemap.xml lacks ${pagePath}.`
       )
     }
+  }
+}
+
+async function verifyNotFoundDocuments() {
+  const html = await readFile(path.join(outputDirectory, "404.html"), "utf8")
+  const markdown = await readFile(path.join(outputDirectory, "404.md"), "utf8")
+
+  for (const href of ["/en/", "/ko/", "/sitemap.xml", "/llms.txt"]) {
+    assert.ok(
+      html.includes(`href="${href}"`),
+      `404.html lacks the recovery link to ${href}.`
+    )
+    assert.ok(
+      markdown.includes(`${expectedOrigin}${href}`),
+      `404.md lacks the recovery link to ${href}.`
+    )
   }
 }
 
@@ -289,6 +311,11 @@ async function verifyPreviewBehavior() {
       missing.status,
       404,
       "Unknown preview routes must return HTTP 404."
+    )
+    assert.match(
+      await missing.text(),
+      /href="\/llms\.txt"/,
+      "The 404 body must link agents to llms.txt."
     )
     assert.equal(
       missingHead.status,

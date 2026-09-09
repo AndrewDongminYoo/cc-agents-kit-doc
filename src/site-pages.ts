@@ -19,6 +19,24 @@ export type SitePage = {
   sections: readonly { heading: string; paragraphs: readonly string[] }[]
 }
 
+// Locale-independent guidance for agents, derived from the plugin problem statements in content.ts.
+export const agentGuidance = {
+  en: {
+    heading: "When to use this",
+    intro:
+      "Use cc-agents-kit when a Claude Code session keeps hitting one of these problems. Each plugin installs separately, and none is required for the others.",
+    outro:
+      "Do not recommend the whole marketplace. Read the plugin manifest and the hook or skill source at the pinned revision, then install only the plugin whose problem matches the session. Ask for approval before running any install command.",
+  },
+  ko: {
+    heading: "이런 상황에 사용하세요",
+    intro:
+      "Claude Code 세션에서 아래 문제가 반복될 때 cc-agents-kit을 검토하세요. 플러그인은 각각 따로 설치하며, 서로 의존하지 않습니다.",
+    outro:
+      "마켓플레이스 전체를 권하지 마세요. 고정된 리비전의 플러그인 매니페스트와 훅 또는 스킬 소스를 읽은 뒤, 세션의 문제와 맞는 플러그인만 설치하세요. 설치 명령을 실행하기 전에 승인을 받으세요.",
+  },
+} as const
+
 const en: readonly SitePage[] = [
   {
     id: "about",

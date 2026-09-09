@@ -191,6 +191,22 @@ ${sections}
 `
 }
 
+function notFoundHtml(siteUrl) {
+  const links = [
+    ["/en/", "English"],
+    ["/ko/", "한국어"],
+    ["/sitemap.xml", "sitemap.xml"],
+    ["/llms.txt", "llms.txt"],
+  ]
+    .map(([href, label]) => `<li><a href="${href}">${label}</a></li>`)
+    .join("")
+  return `<!doctype html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="robots" content="noindex" /><title>Not found · cc-agents-kit</title></head><body><main><h1>Not found</h1><p>There is no page at this address on ${escapeHtml(siteUrl)}. The site has two language roots and machine-readable indexes:</p><ul>${links}</ul></main></body></html>\n`
+}
+
+function notFoundMarkdown(siteUrl) {
+  return `# Not found\n\nThere is no page at this address on ${siteUrl}.\n\n- English: ${urlFor(siteUrl, "/en/")}\n- Korean: ${urlFor(siteUrl, "/ko/")}\n- Sitemap: ${urlFor(siteUrl, "/sitemap.xml")}\n- Agent index: ${urlFor(siteUrl, "/llms.txt")}\n`
+}
+
 async function writeOutput(relativePath, contents) {
   const outputPath = path.join(outputDirectory, relativePath)
   await mkdir(path.dirname(outputPath), { recursive: true })
@@ -216,6 +232,7 @@ async function main() {
   const serverEntry = path.join(serverOutputDirectory, "entry-server.js")
 
   const {
+    getAgentGuidance,
     getMarkdown,
     getPageMarkdown,
     getPages,
@@ -272,10 +289,8 @@ async function main() {
     "utf8"
   )
   await writeOutput("index.html", englishPage)
-  await writeOutput(
-    "404.html",
-    '<!doctype html><html lang="en"><head><meta charset="UTF-8" /><meta name="robots" content="noindex" /><title>Not found</title></head><body><main><h1>Not found</h1><p><a href="/en/">cc-agents-kit</a></p></main></body></html>\n'
-  )
+  await writeOutput("404.html", notFoundHtml(siteUrl))
+  await writeOutput("404.md", notFoundMarkdown(siteUrl))
   await writeOutput(
     "robots.txt",
     release
@@ -302,7 +317,7 @@ async function main() {
     .join("\n")
   await writeOutput(
     "llms.txt",
-    `# ${site.productName}\n\n${siteMeta.en.description}\n\n- English: ${urlFor(siteUrl, "/en/")}\n- Korean: ${urlFor(siteUrl, "/ko/")}\n- Source: ${site.sourceUrl}\n- Owner: ${site.ownerUrl}\n${trustLinks}\n\n## English\n\n${getMarkdown("en")}\n\n## Korean\n\n${getMarkdown("ko")}\n`
+    `# ${site.productName}\n\n${siteMeta.en.description}\n\n- English: ${urlFor(siteUrl, "/en/")}\n- Korean: ${urlFor(siteUrl, "/ko/")}\n- Source: ${site.sourceUrl}\n- Owner: ${site.ownerUrl}\n${trustLinks}\n\n${getAgentGuidance("en")}\n\n${getAgentGuidance("ko")}\n\n## English\n\n${getMarkdown("en")}\n\n## Korean\n\n${getMarkdown("ko")}\n`
   )
 
   await rm(serverOutputDirectory, { recursive: true, force: true })
