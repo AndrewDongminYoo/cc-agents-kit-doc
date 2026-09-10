@@ -5,6 +5,16 @@
   "trailingSlash": true,
   "routes": [
     {
+      "src": "^/assets/(.*)$",
+      "headers": { "Cache-Control": "public, max-age=31536000, immutable" },
+      "continue": true
+    },
+    {
+      "src": "^/(?:|en/|ko/|(?:en|ko)/(?:about|contact|privacy)/|(?:en|ko)/index\\.md|(?:en|ko)/(?:about|contact|privacy)/index\\.md)$",
+      "headers": { "Vary": "Accept, User-Agent" },
+      "continue": true
+    },
+    {
       "src": "^/$",
       "has": [
         {
@@ -112,37 +122,6 @@
       "dest": "/404.md",
       "status": 404,
       "headers": { "Vary": "Accept, User-Agent" }
-    }
-  ],
-  "headers": [
-    {
-      "source": "/",
-      "headers": [{ "key": "Vary", "value": "Accept, User-Agent" }]
-    },
-    {
-      "source": "/:locale(en|ko)/",
-      "headers": [{ "key": "Vary", "value": "Accept, User-Agent" }]
-    },
-    {
-      "source": "/:locale(en|ko)/index.md",
-      "headers": [{ "key": "Vary", "value": "Accept, User-Agent" }]
-    },
-    {
-      "source": "/:locale(en|ko)/:page(about|contact|privacy)/",
-      "headers": [{ "key": "Vary", "value": "Accept, User-Agent" }]
-    },
-    {
-      "source": "/:locale(en|ko)/:page(about|contact|privacy)/index.md",
-      "headers": [{ "key": "Vary", "value": "Accept, User-Agent" }]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
     }
   ]
 }

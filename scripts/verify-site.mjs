@@ -237,6 +237,35 @@ async function verifyAgentUserAgentPolicy(robots) {
     )
   }
 
+  // With a filesystem handle in routes, Vercel ignores the top-level headers block, so headers must be routes too.
+  assert.equal(
+    vercelConfig.headers,
+    undefined,
+    "vercel.json must not use the top-level headers block; it is ignored once routes carry a filesystem handle."
+  )
+  const headerRoutes = vercelConfig.routes.filter(
+    (route) => route.continue === true && route.headers
+  )
+  const matches = (route, pathname) => new RegExp(route.src).test(pathname)
+  for (const pathname of ["/", "/en/", "/ko/about/", "/en/index.md"]) {
+    assert.ok(
+      headerRoutes.some(
+        (route) =>
+          matches(route, pathname) &&
+          /User-Agent/.test(route.headers.Vary ?? "")
+      ),
+      `No continue route sets Vary for ${pathname}.`
+    )
+  }
+  assert.ok(
+    headerRoutes.some(
+      (route) =>
+        matches(route, "/assets/index-abc123.js") &&
+        /immutable/.test(route.headers["Cache-Control"] ?? "")
+    ),
+    "No continue route marks hashed assets immutable."
+  )
+
   if (release) {
     for (const userAgent of agentUserAgents) {
       assert.ok(
