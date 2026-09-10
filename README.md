@@ -77,6 +77,7 @@ The site is published at `https://skills.donminzzi.kr/` from Vercel, which runs 
 `vercel.json` also routes `/`, the locale roots, and the trust pages to their Markdown alternatives when a request names `text/markdown` in `Accept` or comes from one of the AI crawlers and agents listed in `scripts/agent-user-agents.mjs`, serves the Markdown 404 to such requests on an unknown path, adds `Vary: Accept, User-Agent` to every negotiated response, and marks hashed assets immutable.
 The same user-agent list is written into `robots.txt` as an explicitly allowed group, and the validator fails if a user-agent route in `vercel.json` drifts from it.
 Those rules live in `routes`, not `rewrites`, because Vercel resolves the filesystem before `rewrites` and the HTML file would win.
+Response headers are `continue` routes for the same reason: once `routes` carries a filesystem handle, Vercel ignores the top-level `headers` block, and the validator fails if that block reappears.
 
 After a deployment, test public redirects, 404 responses, cache behavior, crawler policies, and the external scan separately; the local preview server proves the output, not the host.
 
