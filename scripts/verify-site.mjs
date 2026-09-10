@@ -4,6 +4,7 @@ import { access, readFile } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
+import { agentUserAgentPattern, agentUserAgents } from "./agent-user-agents.mjs"
 import { isReleaseSiteUrl, normalizeSiteUrl } from "./site-url.mjs"
 import { createStaticServer } from "./static-server.mjs"
 
@@ -206,6 +207,44 @@ async function verifyStaticOutput() {
   await access(path.join(outputDirectory, "favicon.svg"))
   await verifyTrustPages(sitemap)
   await verifyNotFoundDocuments()
+  await verifyAgentUserAgentPolicy(robots)
+}
+
+// The agent user-agent list is defined once; robots.txt and every user-agent route in vercel.json must use it verbatim.
+async function verifyAgentUserAgentPolicy(robots) {
+  const vercelConfig = JSON.parse(
+    await readFile(path.join(projectRoot, "vercel.json"), "utf8")
+  )
+  const userAgentRoutes = vercelConfig.routes.filter((route) =>
+    (route.has ?? []).some((condition) => condition.key === "user-agent")
+  )
+
+  assert.ok(
+    userAgentRoutes.length >= 3,
+    "vercel.json must route agent user agents to Markdown on the negotiable paths."
+  )
+  for (const route of userAgentRoutes) {
+    const condition = route.has.find((entry) => entry.key === "user-agent")
+    assert.equal(
+      condition.value?.re,
+      agentUserAgentPattern,
+      `A user-agent route in vercel.json (${route.src}) does not use the shared agent list.`
+    )
+    assert.match(
+      route.headers?.Vary ?? "",
+      /User-Agent/,
+      `The user-agent route ${route.src} must vary by User-Agent.`
+    )
+  }
+
+  if (release) {
+    for (const userAgent of agentUserAgents) {
+      assert.ok(
+        robots.includes(`User-agent: ${userAgent}\n`),
+        `robots.txt lacks the ${userAgent} group.`
+      )
+    }
+  }
 }
 
 // Trust pages exist in both locales, carry the configured origin, and hold enough content to count as real pages.
@@ -297,6 +336,12 @@ async function verifyPreviewBehavior() {
     const trustMarkdown = await fetch(`${baseUrl}/en/about`, {
       headers: { accept: "text/markdown" },
     })
+    const agentRequest = await fetch(`${baseUrl}/ko/`, {
+      headers: {
+        accept: "text/html,*/*;q=0.8",
+        "user-agent": "Mozilla/5.0 (compatible; GPTBot/1.0)",
+      },
+    })
     const missing = await fetch(`${baseUrl}/not-a-route`)
     const missingMarkdown = await fetch(`${baseUrl}/not-a-route`, {
       headers: { accept: "text/markdown" },
@@ -326,9 +371,9 @@ async function verifyPreviewBehavior() {
       /^text\/markdown/,
       "Markdown negotiation returned the wrong type."
     )
-    assert.equal(
-      markdown.headers.get("vary"),
-      "Accept",
+    assert.match(
+      markdown.headers.get("vary") ?? "",
+      /\bAccept\b/,
       "Markdown negotiation must vary by Accept."
     )
     assert.ok(
@@ -354,6 +399,16 @@ async function verifyPreviewBehavior() {
       trustMarkdown.headers.get("content-type") ?? "",
       /^text\/markdown/,
       "Trust pages must negotiate Markdown."
+    )
+    assert.match(
+      agentRequest.headers.get("content-type") ?? "",
+      /^text\/markdown/,
+      "An agent user agent must receive Markdown without asking for it."
+    )
+    assert.match(
+      agentRequest.headers.get("vary") ?? "",
+      /User-Agent/,
+      "Agent-selected responses must vary by User-Agent."
     )
     assert.equal(
       missing.status,

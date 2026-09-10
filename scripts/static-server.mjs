@@ -4,6 +4,8 @@ import http from "node:http"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
+import { isAgentUserAgent } from "./agent-user-agents.mjs"
+
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   ".."
@@ -56,12 +58,19 @@ function qualityFor(accept, mediaType) {
     : 0
 }
 
-function wantsMarkdown(accept = "") {
+// Markdown wins when the client asks for it over HTML, or when the client is a known AI crawler or agent.
+function wantsMarkdown(accept = "", userAgent = "") {
+  if (isAgentUserAgent(userAgent)) {
+    return true
+  }
+
   const markdownQuality = qualityFor(accept, "text/markdown")
   const htmlQuality = qualityFor(accept, "text/html")
 
   return markdownQuality > 0 && markdownQuality > htmlQuality
 }
+
+const negotiationVary = "Accept, User-Agent"
 
 // Directory routes: the locale roots and the trust pages under them, with or without a trailing slash.
 const directoryRoute = /^\/(en|ko)(?:\/(about|contact|privacy))?\/?$/
@@ -94,7 +103,7 @@ async function sendNotFound(response, sendBody, markdown) {
       ? "text/markdown; charset=utf-8"
       : "text/html; charset=utf-8",
     "cache-control": "no-store",
-    vary: "Accept",
+    vary: negotiationVary,
   })
 
   if (!sendBody) {
@@ -133,10 +142,11 @@ export async function createStaticServer() {
       return
     }
 
-    const relativePath = routeFor(
-      pathname,
-      wantsMarkdown(request.headers.accept)
+    const markdown = wantsMarkdown(
+      request.headers.accept,
+      request.headers["user-agent"]
     )
+    const relativePath = routeFor(pathname, markdown)
     const candidatePath = path.resolve(resolvedOutputDirectory, relativePath)
 
     if (
@@ -145,11 +155,7 @@ export async function createStaticServer() {
         .then((entry) => entry.isFile())
         .catch(() => false))
     ) {
-      await sendNotFound(
-        response,
-        request.method === "GET",
-        wantsMarkdown(request.headers.accept)
-      )
+      await sendNotFound(response, request.method === "GET", markdown)
       return
     }
 
@@ -157,7 +163,7 @@ export async function createStaticServer() {
       "cache-control": "no-store",
       "content-type":
         contentTypes[path.extname(candidatePath)] ?? "application/octet-stream",
-      ...(isNegotiableRoute(pathname) ? { vary: "Accept" } : {}),
+      ...(isNegotiableRoute(pathname) ? { vary: negotiationVary } : {}),
     })
 
     if (request.method === "HEAD") {

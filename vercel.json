@@ -10,15 +10,25 @@
         {
           "type": "header",
           "key": "accept",
+          "value": { "re": "text/markdown" }
+        }
+      ],
+      "dest": "/en/index.md",
+      "headers": { "Vary": "Accept, User-Agent" }
+    },
+    {
+      "src": "^/$",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
           "value": {
-            "re": "text/markdown"
+            "re": "ClaudeBot|Claude-User|Claude-SearchBot|GPTBot|ChatGPT-User|OAI-SearchBot|PerplexityBot|Google-Extended|Applebot-Extended|DeepSeekBot|ora-agent"
           }
         }
       ],
       "dest": "/en/index.md",
-      "headers": {
-        "Vary": "Accept"
-      }
+      "headers": { "Vary": "Accept, User-Agent" }
     },
     {
       "src": "^/(en|ko)/$",
@@ -26,15 +36,25 @@
         {
           "type": "header",
           "key": "accept",
+          "value": { "re": "text/markdown" }
+        }
+      ],
+      "dest": "/$1/index.md",
+      "headers": { "Vary": "Accept, User-Agent" }
+    },
+    {
+      "src": "^/(en|ko)/$",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
           "value": {
-            "re": "text/markdown"
+            "re": "ClaudeBot|Claude-User|Claude-SearchBot|GPTBot|ChatGPT-User|OAI-SearchBot|PerplexityBot|Google-Extended|Applebot-Extended|DeepSeekBot|ora-agent"
           }
         }
       ],
       "dest": "/$1/index.md",
-      "headers": {
-        "Vary": "Accept"
-      }
+      "headers": { "Vary": "Accept, User-Agent" }
     },
     {
       "src": "^/(en|ko)/(about|contact|privacy)/$",
@@ -42,15 +62,25 @@
         {
           "type": "header",
           "key": "accept",
+          "value": { "re": "text/markdown" }
+        }
+      ],
+      "dest": "/$1/$2/index.md",
+      "headers": { "Vary": "Accept, User-Agent" }
+    },
+    {
+      "src": "^/(en|ko)/(about|contact|privacy)/$",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
           "value": {
-            "re": "text/markdown"
+            "re": "ClaudeBot|Claude-User|Claude-SearchBot|GPTBot|ChatGPT-User|OAI-SearchBot|PerplexityBot|Google-Extended|Applebot-Extended|DeepSeekBot|ora-agent"
           }
         }
       ],
       "dest": "/$1/$2/index.md",
-      "headers": {
-        "Vary": "Accept"
-      }
+      "headers": { "Vary": "Accept, User-Agent" }
     },
     {
       "handle": "filesystem"
@@ -61,63 +91,49 @@
         {
           "type": "header",
           "key": "accept",
+          "value": { "re": "text/markdown" }
+        }
+      ],
+      "dest": "/404.md",
+      "status": 404,
+      "headers": { "Vary": "Accept, User-Agent" }
+    },
+    {
+      "src": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
           "value": {
-            "re": "text/markdown"
+            "re": "ClaudeBot|Claude-User|Claude-SearchBot|GPTBot|ChatGPT-User|OAI-SearchBot|PerplexityBot|Google-Extended|Applebot-Extended|DeepSeekBot|ora-agent"
           }
         }
       ],
       "dest": "/404.md",
       "status": 404,
-      "headers": {
-        "Vary": "Accept"
-      }
+      "headers": { "Vary": "Accept, User-Agent" }
     }
   ],
   "headers": [
     {
       "source": "/",
-      "headers": [
-        {
-          "key": "Vary",
-          "value": "Accept"
-        }
-      ]
+      "headers": [{ "key": "Vary", "value": "Accept, User-Agent" }]
     },
     {
       "source": "/:locale(en|ko)/",
-      "headers": [
-        {
-          "key": "Vary",
-          "value": "Accept"
-        }
-      ]
+      "headers": [{ "key": "Vary", "value": "Accept, User-Agent" }]
     },
     {
       "source": "/:locale(en|ko)/index.md",
-      "headers": [
-        {
-          "key": "Vary",
-          "value": "Accept"
-        }
-      ]
+      "headers": [{ "key": "Vary", "value": "Accept, User-Agent" }]
     },
     {
       "source": "/:locale(en|ko)/:page(about|contact|privacy)/",
-      "headers": [
-        {
-          "key": "Vary",
-          "value": "Accept"
-        }
-      ]
+      "headers": [{ "key": "Vary", "value": "Accept, User-Agent" }]
     },
     {
       "source": "/:locale(en|ko)/:page(about|contact|privacy)/index.md",
-      "headers": [
-        {
-          "key": "Vary",
-          "value": "Accept"
-        }
-      ]
+      "headers": [{ "key": "Vary", "value": "Accept, User-Agent" }]
     },
     {
       "source": "/assets/(.*)",

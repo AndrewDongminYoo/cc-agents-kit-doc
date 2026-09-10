@@ -2,6 +2,7 @@ import { access, mkdir, readFile, rm, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
+import { agentUserAgents } from "./agent-user-agents.mjs"
 import { isReleaseSiteUrl, normalizeSiteUrl } from "./site-url.mjs"
 
 const projectRoot = path.resolve(
@@ -329,7 +330,11 @@ async function main() {
   await writeOutput(
     "robots.txt",
     release
-      ? `User-agent: *\nAllow: /\nSitemap: ${urlFor(siteUrl, "/sitemap.xml")}\n`
+      ? `User-agent: *\nAllow: /\n\n# AI crawlers and agents are welcome. These user agents receive Markdown for HTML routes.\n${agentUserAgents
+          .map((userAgent) => `User-agent: ${userAgent}`)
+          .join(
+            "\n"
+          )}\nAllow: /\n\nSitemap: ${urlFor(siteUrl, "/sitemap.xml")}\n`
       : "User-agent: *\nDisallow: /\n"
   )
   const sitemapPaths = locales.flatMap((locale) => [
