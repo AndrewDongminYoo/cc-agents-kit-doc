@@ -31,7 +31,7 @@ pnpm format                   # prettier --write (format:check for CI mode)
 pnpm knip                     # unused files/exports/deps; entry is src/entry-server.tsx
 pnpm verify:site              # validate an existing dist/ (requires a prior pnpm build)
 pnpm verify:site:negative     # same, plus negative fixtures that must fail
-trunk check --no-fix          # actionlint + git-diff-check only
+trunk check --all --no-fix    # actionlint, git-diff-check, OSV Scanner, and pinact lint/upgrade
 ```
 
 Release build (Vercel uses this via `vercel.json`):
@@ -45,7 +45,8 @@ Without `SITE_URL`, `pnpm build` targets `http://localhost:4173` and emits `noin
 `VITE_SITE_REPO_URL` optionally supplies the website repository link; otherwise the footer shows it as pending.
 
 Git hooks are managed by Trunk (`.trunk/trunk.yaml`): pre-commit runs `pnpm lint` + `pnpm format:check`, pre-push runs `pnpm check`.
-CI (`.github/workflows/ci.yml`) runs `trunk check --no-fix` and `pnpm check` on Node 24.
+CI (`.github/workflows/ci.yml`) runs `trunk check --all --no-fix` and `pnpm check` on Node 24.
+The full scan includes the dependency lockfile even when a pull request does not change it.
 
 ## Architecture
 
