@@ -31,7 +31,7 @@ pnpm format                   # prettier --write (format:check for CI mode)
 pnpm knip                     # unused files/exports/deps; entry is src/entry-server.tsx
 pnpm verify:site              # validate an existing dist/ (requires a prior pnpm build)
 pnpm verify:site:negative     # same, plus negative fixtures that must fail
-trunk check --no-fix          # actionlint + git-diff-check only
+trunk check --no-fix          # actionlint, git-diff-check, OSV Scanner, and pinact lint/upgrade
 ```
 
 Release build (Vercel uses this via `vercel.json`):
