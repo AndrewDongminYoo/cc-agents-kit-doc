@@ -10,7 +10,7 @@ Use the [maintenance contract](../specs/2026-10-28-quality-refresh.md) and the e
 2. Inspect manifests, lockfiles, linter definitions, and relevant knowledge claims before edits.
 3. Upgrade supported versions without broad ignore changes or generated-file edits.
 4. Run `pnpm check`.
-5. Run `trunk check --all --no-fix` and inspect the final diff.
+5. Run `trunk check --all --no-fix`, retain that full-file scope in CI for unchanged lockfiles, and inspect the final diff.
 6. Correct implementation-caused documentation drift and validate local links.
 7. Commit scoped concerns and prepare visible review evidence.
 

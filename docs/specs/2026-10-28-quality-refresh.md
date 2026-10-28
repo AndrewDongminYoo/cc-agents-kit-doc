@@ -10,6 +10,7 @@ Preserve application behavior, existing exclusions, and generated artifacts.
 - Enabled linters use verified current compatible releases.
 - Pinact is locked to `4.1.1` with `lint` and `upgrade` enabled.
 - The full no-fix Trunk scan and project-specific minimum gates pass.
+- CI runs Trunk with `--all` so dependency scanning includes an unchanged lockfile.
 - Manifest changes have a package-manager-generated lockfile.
 - Vulnerability dispositions identify their advisory and supporting evidence.
 - Affected documentation commands, paths, versions, and local links agree with the checkout.
