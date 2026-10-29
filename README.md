@@ -51,7 +51,7 @@ pnpm format:check
 pnpm knip
 pnpm build
 pnpm verify:site:negative
-trunk check --no-fix
+trunk check --all --no-fix
 ```
 
 `pnpm typecheck` runs the TypeScript compiler.
@@ -59,7 +59,7 @@ trunk check --no-fix
 `pnpm knip` checks for unused files and exports.
 `pnpm build` generates the static site before site validation.
 `pnpm verify:site:negative` exercises the site's negative validation fixtures.
-`trunk check --no-fix` runs the repository's Trunk checks without applying fixes.
+`trunk check --all --no-fix` runs the repository's Trunk checks on every file, including an unchanged dependency lockfile, without applying fixes.
 
 ## Content and architecture
 
