@@ -2,15 +2,7 @@ import { toolExamples } from "./tool-examples"
 
 export type Locale = "en" | "ko"
 
-export type PluginId = "guard-hooks" | "context-handoff" | "repo-gate"
-
-export const release = {
-  version: "0.3.9",
-  sha: "4a8947c3110459730e5c91eb75f7ecfe620be394",
-  pluginCount: 3,
-  skillCount: 11,
-  hookCount: 8,
-} as const
+export type PluginId = keyof typeof sharedPlugins
 
 export const sourceRepositoryUrl =
   "https://github.com/AndrewDongminYoo/cc-agents-kit"
@@ -28,7 +20,7 @@ type PluginContent = {
   id: PluginId
   number: string
   version: string
-  type: "hooks" | "skills"
+  type: "hooks" | "mods" | "skills"
   count: number
   name: string
   shortDescription: string
@@ -45,7 +37,7 @@ export type SiteContent = {
     description: string
   }
   languageName: string
-  alternateLanguage: string
+  languageLabel: string
   skipLink: string
   brandNote: string
   nav: {
@@ -149,10 +141,18 @@ export type SiteContent = {
     eyebrow: string
     title: string
     intro: string
+    openInClaude: string
+    openInChatGPT: string
     promptLabel: string
     prompt: string
     note: string
     annotation: readonly string[]
+  }
+  pageTools: {
+    copyPage: string
+    label: string
+    manualCopy: string
+    markdown: string
   }
   faq: {
     eyebrow: string
@@ -176,9 +176,9 @@ const sharedPlugins = {
   "guard-hooks": {
     id: "guard-hooks",
     number: "01",
-    version: "0.2.7",
+    version: "0.5.2",
     type: "hooks",
-    count: 8,
+    count: 9,
     contents: [
       "dangerous-command-guard",
       "zsh-quoting-guard",
@@ -188,12 +188,13 @@ const sharedPlugins = {
       "lockfile-drift-check",
       "shellcheck-on-edit",
       "output-secret-mask",
+      "security-review-findings",
     ],
   },
   "context-handoff": {
     id: "context-handoff",
     number: "02",
-    version: "0.1.4",
+    version: "0.2.3",
     type: "skills",
     count: 6,
     contents: [
@@ -208,17 +209,49 @@ const sharedPlugins = {
   "repo-gate": {
     id: "repo-gate",
     number: "03",
-    version: "0.1.6",
+    version: "0.2.10",
     type: "skills",
-    count: 5,
+    count: 6,
     contents: [
       "semantic-commit",
       "setup-trunk",
       "ci-babysit",
       "fix-osv-vulnerabilities",
       "cspell-triage",
+      "markdownlint-triage",
     ],
   },
+  "context-meter": {
+    contents: ["context-meter"],
+    count: 1,
+    id: "context-meter",
+    number: "04",
+    type: "mods",
+    version: "0.1.0",
+  },
+  "quick-look": {
+    contents: ["quick-look"],
+    count: 1,
+    id: "quick-look",
+    number: "05",
+    type: "mods",
+    version: "0.1.0",
+  },
+} as const
+
+const inventory = Object.values(sharedPlugins)
+
+export const release = {
+  version: "0.8.4",
+  sha: "2a934ed849c25a559439e96d952f0f18a67e8c97",
+  pluginCount: inventory.length,
+  skillCount: inventory
+    .filter((plugin) => plugin.type === "skills")
+    .reduce((total, plugin) => total + plugin.contents.length, 0),
+  hookCount: inventory
+    .filter((plugin) => plugin.type === "hooks")
+    .reduce((total, plugin) => total + plugin.contents.length, 0),
+  modCount: inventory.filter((plugin) => plugin.type === "mods").length,
 } as const
 
 export function toolSourceUrl(pluginId: PluginId, toolId: string): string {
@@ -229,18 +262,26 @@ export function toolSourceUrl(pluginId: PluginId, toolId: string): string {
   const sourcePath =
     plugin.type === "hooks"
       ? `plugins/${pluginId}/hooks/${toolId}.sh`
-      : `plugins/${pluginId}/skills/${toolId}/SKILL.md`
+      : plugin.type === "mods"
+        ? `plugins/${pluginId}/hooks/register.tsx`
+        : `plugins/${pluginId}/skills/${toolId}/SKILL.md`
   return `${sourceRepositoryUrl}/blob/${release.sha}/${sourcePath}`
 }
 
 const en: SiteContent = {
+  pageTools: {
+    copyPage: "Copy page",
+    label: "Use this page",
+    manualCopy: "Select the page content below and copy it manually.",
+    markdown: "View as Markdown",
+  },
   meta: {
     title: "cc-agents-kit — Guardrails and workflow tools for Claude Code",
     description:
-      "Three focused Claude Code plugins for safer commands, durable context, and deliberate repository delivery.",
+      "Focused Claude Code plugins and mods for safer commands, durable context, repository delivery, context usage, and file previews.",
   },
   languageName: "English",
-  alternateLanguage: "한국어",
+  languageLabel: "Language",
   skipLink: "Skip to content",
   brandNote: "A focused Claude Code plugin marketplace",
   nav: {
@@ -267,6 +308,7 @@ const en: SiteContent = {
       { value: String(release.pluginCount), label: "plugins" },
       { value: String(release.skillCount), label: "workflow skills" },
       { value: String(release.hookCount), label: "defensive hooks" },
+      { value: String(release.modCount), label: "function-hook mods" },
     ],
   },
   schematic: {
@@ -312,11 +354,24 @@ const en: SiteContent = {
         overlap:
           "These skills guide work with your existing tools. If your repository already has equivalent procedures, check the overlap before adding them.",
       },
+      "context-meter": {
+        overlap:
+          "This mod targets Claude Code advisor usage. Skip it if your harness already measures context correctly.",
+        summary:
+          "Read per-request usage and delay premature automatic compaction.",
+        title: "Context usage looks higher than it should.",
+      },
+      "quick-look": {
+        overlap:
+          "This mod requires macOS and Claude Code mods support. Your editor's file previews may already meet this need.",
+        summary: "Open recent files in macOS Quick Look with /ql.",
+        title: "I want to preview the files the agent touched.",
+      },
     },
   },
   catalogue: {
     eyebrow: "Plugin catalogue",
-    title: "Three plugins. Three clear jobs.",
+    title: "Focused plugins and mods.",
     intro:
       "Each plugin owns one part of the work. Read the full inventory, compare the fit, and install only what earns a place in your setup.",
     indexLabel: "Catalogue index",
@@ -331,13 +386,13 @@ const en: SiteContent = {
       shortDescription:
         "Catch common command mistakes before they become expensive.",
       description:
-        "Eight defensive hooks watch Claude Code tool calls. Five can block risky command shapes before execution, two add warnings after edits, and one masks credential-shaped Bash output.",
+        "Nine defensive hooks watch Claude Code tool calls. Five can block risky command shapes before execution, three add warnings, and one masks credential-shaped Bash output.",
       idealFor:
         "Teams and solo developers who want practical protection from recurring shell, secret, and lockfile mistakes.",
-      contentsLabel: "8 hooks",
+      contentsLabel: "9 hooks",
       notes: [
         "5 blocking PreToolUse guards",
-        "2 warning PostToolUse hooks",
+        "3 warning PostToolUse hooks",
         "1 Bash-output masking hook",
       ],
     },
@@ -361,15 +416,43 @@ const en: SiteContent = {
       name: "repo-gate",
       shortDescription: "Move from working code to a careful push.",
       description:
-        "Five skills cover the delivery steps around a repository: split changes into clear commits, introduce Trunk, monitor CI, triage OSV findings, and resolve spelling reports.",
+        "Six skills cover repository delivery: split changes into clear commits, introduce Trunk, monitor CI, and triage OSV, spelling, and Markdown lint findings.",
       idealFor:
         "Maintainers who want repository checks to follow evidence and project conventions instead of a fixed stack.",
-      contentsLabel: "5 skills",
+      contentsLabel: "6 skills",
       notes: [
         "Commit and quality-gate setup",
         "CI monitoring with explicit authority",
         "Dependency and spelling triage",
       ],
+    },
+    {
+      ...sharedPlugins["context-meter"],
+      contentsLabel: "1 mod",
+      description:
+        "A function-hook mod that displays context fill, can veto premature automatic compaction caused by advisor usage, and sends a handoff nudge at 80%.",
+      idealFor:
+        "Claude Code sessions affected by advisor usage overcounting. Tested on Claude Code 2.1.292 and 2.1.296.",
+      name: "context-meter",
+      notes: [
+        "Requires Claude Code mods support",
+        "Fails open when usage cannot be judged",
+      ],
+      shortDescription: "See context usage from each model request.",
+    },
+    {
+      ...sharedPlugins["quick-look"],
+      contentsLabel: "1 mod",
+      description:
+        "A function-hook mod that keeps the nine most recent files and opens macOS Quick Look only when you request it with /ql.",
+      idealFor:
+        "macOS users with Claude Code mods support. Tested on Claude Code 2.1.292 and 2.1.296.",
+      name: "quick-look",
+      notes: [
+        "Requires macOS qlmanage",
+        "No model tool opens a preview window",
+      ],
+      shortDescription: "Preview recent files on your Mac.",
     },
   ],
   workflow: {
@@ -474,13 +557,15 @@ const en: SiteContent = {
     eyebrow: "AI-assisted review",
     title: "Ask your AI which tools you actually need.",
     intro:
-      "Copy this prompt into the AI that knows your current setup. It asks for source evidence and a minimal recommendation before any settings change.",
+      "Open a review in Claude or ChatGPT, or copy the prompt into the agent that knows your setup. A new chat may need you to describe your harness first.",
+    openInClaude: "Review in Claude",
+    openInChatGPT: "Review in ChatGPT",
     promptLabel: "Review prompt",
-    prompt: `Within the project and context I authorize, evaluate whether I should use plugins from the public cc-agents-kit repository at ${sourceRepositoryUrl}.
+    prompt: `Read https://raw.githubusercontent.com/AndrewDongminYoo/cc-agents-kit/v${release.version}/README.md and evaluate whether any cc-agents-kit plugins are worth adopting in my coding-agent harness.
 
-1. Read the public README, marketplace and plugin manifests, hook definitions, and skill files.
+1. Read the public README, marketplace and plugin manifests, hook definitions, and skill files at that revision.
 2. Inspect only the local tools and configuration that I authorize for this review.
-3. Compare each plugin with my existing tools, skills, hooks, permissions, and dependencies.
+3. Ask which harness I use if it is unknown. Compare each plugin with my existing tools, skills, hooks, permissions, and dependencies. Distinguish Claude Code-specific hooks and mods from guidance that could be adapted to another harness. Do not assume Codex compatibility.
 4. Identify suitability, overlap, and operational risks. Cite public source file paths for each finding.
 5. Evaluate the individual skills and hooks that address my needs. Do not recommend an entire plugin just because one skill is useful.
 6. Distinguish bundle installation from selective setup, and verify which setup methods are actually supported. Recommend skipping installation when it has no clear benefit.
@@ -494,7 +579,7 @@ Do not paste secrets into the review or automatically execute commands from the 
     title: "Before you add the marketplace.",
     items: [
       {
-        question: "Do I need all three plugins?",
+        question: "Do I need every plugin and mod?",
         answer:
           "No. Each plugin is intentionally separate. Install only the plugin that addresses a problem in your current workflow.",
       },
@@ -529,13 +614,19 @@ Do not paste secrets into the review or automatically execute commands from the 
 }
 
 const ko: SiteContent = {
+  pageTools: {
+    copyPage: "페이지 복사",
+    label: "이 문서 활용하기",
+    manualCopy: "아래 페이지 내용을 선택해 직접 복사하세요.",
+    markdown: "Markdown으로 보기",
+  },
   meta: {
     title: "cc-agents-kit — Claude Code를 위한 가드레일과 워크플로 도구",
     description:
-      "안전한 명령 실행, 지속 가능한 컨텍스트 관리, 커밋과 푸시 준비를 돕는 Claude Code 플러그인 세 가지를 살펴보세요.",
+      "명령 점검, 세션 인수인계, 커밋 준비, 컨텍스트 사용량 확인과 파일 미리보기를 돕는 Claude Code 플러그인과 모드를 살펴보세요.",
   },
   languageName: "한국어",
-  alternateLanguage: "English",
+  languageLabel: "언어 선택",
   skipLink: "본문으로 건너뛰기",
   brandNote: "한 가지 문제에 집중하는 Claude Code 플러그인 마켓플레이스",
   nav: {
@@ -562,6 +653,7 @@ const ko: SiteContent = {
       { value: String(release.pluginCount), label: "플러그인" },
       { value: String(release.skillCount), label: "워크플로 스킬" },
       { value: String(release.hookCount), label: "방어용 훅" },
+      { value: String(release.modCount), label: "함수 훅 모드" },
     ],
   },
   schematic: {
@@ -604,11 +696,23 @@ const ko: SiteContent = {
         overlap:
           "기존 도구를 사용하는 절차를 안내하는 스킬입니다. 저장소에 같은 역할의 절차가 있다면 겹치는 부분부터 확인하세요.",
       },
+      "context-meter": {
+        overlap:
+          "Claude Code의 advisor 사용량 집계를 보완하는 모드입니다. 현재 하네스가 컨텍스트를 정확히 측정한다면 추가할 필요가 없습니다.",
+        summary: "요청별 사용량을 읽고 너무 이른 자동 압축을 늦춥니다.",
+        title: "컨텍스트 사용량이 실제보다 높아 보여요.",
+      },
+      "quick-look": {
+        overlap:
+          "macOS와 Claude Code 모드 지원이 필요합니다. 편집기의 파일 미리보기만으로 충분한지 먼저 확인하세요.",
+        summary: "/ql 명령으로 최근 파일을 macOS Quick Look에서 엽니다.",
+        title: "에이전트가 다룬 파일을 바로 보고 싶어요.",
+      },
     },
   },
   catalogue: {
     eyebrow: "플러그인 목록",
-    title: "세 가지 플러그인, 세 가지 분명한 역할.",
+    title: "필요한 역할만 맡기는 플러그인과 모드.",
     intro:
       "각 플러그인은 작업 과정의 한 부분만 담당합니다. 전체 구성 요소를 확인하고 적합성을 비교한 뒤, 현재 환경에 필요한 플러그인만 설치하세요.",
     indexLabel: "목록 바로가기",
@@ -622,13 +726,13 @@ const ko: SiteContent = {
       name: "guard-hooks",
       shortDescription: "반복되는 명령 실수를 실행 전에 발견합니다.",
       description:
-        "Claude Code의 도구 호출을 방어용 훅 여덟 개가 점검합니다. 다섯 개는 위험한 명령 형태를 실행 전에 차단하며, 두 개는 편집 후 경고를 추가하고, 한 개는 Bash 출력에서 자격 증명으로 보이는 값을 가립니다.",
+        "Claude Code의 도구 호출을 방어용 훅 아홉 개가 점검합니다. 다섯 개는 위험한 명령 형태를 실행 전에 차단하며, 세 개는 경고를 추가하고, 한 개는 Bash 출력에서 자격 증명으로 보이는 값을 가립니다.",
       idealFor:
         "셸 명령, 비밀 정보, 잠금 파일과 관련하여 반복되는 실수를 실용적인 방식으로 줄이려는 팀과 개인 개발자에게 적합합니다.",
-      contentsLabel: "훅 8개",
+      contentsLabel: "훅 9개",
       notes: [
         "차단하는 PreToolUse 가드 5개",
-        "경고하는 PostToolUse 훅 2개",
+        "경고하는 PostToolUse 훅 3개",
         "Bash 출력을 마스킹하는 훅 1개",
       ],
     },
@@ -652,15 +756,40 @@ const ko: SiteContent = {
       name: "repo-gate",
       shortDescription: "완성된 코드를 점검하고 푸시합니다.",
       description:
-        "커밋과 푸시를 준비하는 스킬 다섯 개를 제공합니다. 변경 사항을 명확한 커밋으로 분리하고, Trunk를 도입하며, CI를 모니터링하고, OSV 취약점과 맞춤법 검사 결과를 분류합니다.",
+        "커밋과 푸시를 준비하는 스킬 여섯 개를 제공합니다. 변경 사항을 명확한 커밋으로 분리하고, Trunk를 도입하며, CI를 모니터링하고, OSV 취약점과 맞춤법·Markdown 검사 결과를 분류합니다.",
       idealFor:
         "고정된 기술 스택보다 실제 증거와 프로젝트 관례를 기준으로 저장소 점검을 진행하려는 유지보수 담당자에게 적합합니다.",
-      contentsLabel: "스킬 5개",
+      contentsLabel: "스킬 6개",
       notes: [
         "커밋 및 품질 게이트 설정",
         "명시적인 권한에 따른 CI 모니터링",
         "의존성 취약점 및 맞춤법 검사 결과 분류",
       ],
+    },
+    {
+      ...sharedPlugins["context-meter"],
+      contentsLabel: "모드 1개",
+      description:
+        "컨텍스트 사용량을 표시하고 advisor 사용량 집계 때문에 너무 일찍 시작되는 자동 압축을 보류할 수 있는 함수 훅 모드입니다. 사용량이 80%에 도달하면 인수인계를 한 번 안내합니다.",
+      idealFor:
+        "advisor 사용량이 중복 집계되는 Claude Code 세션에 적합합니다. Claude Code 2.1.292와 2.1.296에서 테스트했습니다.",
+      name: "context-meter",
+      notes: [
+        "Claude Code 모드 지원 필요",
+        "사용량을 판단할 수 없으면 압축 허용",
+      ],
+      shortDescription: "모델 요청별 컨텍스트 사용량을 확인합니다.",
+    },
+    {
+      ...sharedPlugins["quick-look"],
+      contentsLabel: "모드 1개",
+      description:
+        "최근 파일 아홉 개를 기억하고 /ql 명령으로 요청했을 때 macOS Quick Look을 여는 함수 훅 모드입니다.",
+      idealFor:
+        "Claude Code 모드를 사용할 수 있는 macOS 환경에 적합합니다. Claude Code 2.1.292와 2.1.296에서 테스트했습니다.",
+      name: "quick-look",
+      notes: ["macOS qlmanage 필요", "모델이 창을 여는 도구는 제공하지 않음"],
+      shortDescription: "Mac에서 최근 파일을 미리 봅니다.",
     },
   ],
   workflow: {
@@ -765,13 +894,15 @@ const ko: SiteContent = {
     eyebrow: "AI 보조 검토",
     title: "필요한 도구만 고르도록 AI에 검토를 요청하세요.",
     intro:
-      "현재 환경을 알고 있는 AI에 아래 프롬프트를 전달하세요. 설정을 변경하기 전에 소스 근거와 최소한의 추천 조합을 요청합니다.",
+      "Claude나 ChatGPT에서 검토를 시작하거나, 현재 환경을 알고 있는 에이전트에 프롬프트를 복사하세요. 새 대화에서는 사용하는 하네스를 먼저 알려줘야 할 수 있습니다.",
+    openInClaude: "Claude에서 검토하기",
+    openInChatGPT: "ChatGPT에서 검토하기",
     promptLabel: "검토 프롬프트",
-    prompt: `제가 검토를 허용한 프로젝트와 범위 안에서 ${sourceRepositoryUrl}에 공개된 cc-agents-kit 저장소의 플러그인이 현재 환경에 적합한지 평가해 주세요.
+    prompt: `https://raw.githubusercontent.com/AndrewDongminYoo/cc-agents-kit/v${release.version}/README.md 문서를 읽고 cc-agents-kit 플러그인을 제 코딩 에이전트 하네스에 적용할 가치가 있는지 검토해 주세요.
 
-1. 공개 README, 마켓플레이스 및 플러그인 매니페스트, 훅 정의, 스킬 파일을 읽어 주세요.
+1. 해당 리비전의 공개 README, 마켓플레이스 및 플러그인 매니페스트, 훅 정의, 스킬 파일을 읽어 주세요.
 2. 이번 검토를 위해 제가 허용한 로컬 도구와 설정만 확인해 주세요.
-3. 각 플러그인을 현재 환경의 도구, 스킬, 훅, 권한, 의존성과 비교해 주세요.
+3. 사용하는 하네스를 모르면 먼저 물어봐 주세요. 각 플러그인을 기존 도구, 스킬, 훅, 권한, 의존성과 비교하고, Claude Code 전용 훅·모드와 다른 하네스에 옮길 수 있는 지침을 구분해 주세요. Codex에서 그대로 작동한다고 가정하지 마세요.
 4. 적합성, 중복 기능, 운영 위험을 식별하고, 각 판단의 공개 소스 파일 경로를 제시해 주세요.
 5. 필요한 개별 스킬과 훅을 평가해 주세요. 스킬 하나가 유용하다는 이유만으로 플러그인 전체를 추천하지 마세요.
 6. 묶음 설치와 일부 기능의 적용을 구분하고, 어떤 적용 방법이 실제로 지원되는지 확인해 주세요. 분명한 이점이 없다면 설치하지 않는 방향을 추천해 주세요.
@@ -785,7 +916,7 @@ const ko: SiteContent = {
     title: "마켓플레이스를 추가하기 전에 확인하세요.",
     items: [
       {
-        question: "세 가지 플러그인을 모두 설치해야 하나요?",
+        question: "플러그인과 모드를 모두 설치해야 하나요?",
         answer:
           "아닙니다. 각 플러그인은 의도적으로 분리되어 있습니다. 현재 워크플로의 문제를 해결하는 플러그인만 설치하세요.",
       },
@@ -829,6 +960,20 @@ export const siteMeta = {
 
 export function getContent(locale: Locale): SiteContent {
   return contentByLocale[locale]
+}
+
+export function getReviewLinks(content: SiteContent) {
+  const prompt = encodeURIComponent(content.review.prompt)
+  return [
+    {
+      label: content.review.openInClaude,
+      href: `https://claude.ai/new?q=${prompt}`,
+    },
+    {
+      label: content.review.openInChatGPT,
+      href: `https://chatgpt.com/?hints=search&q=${prompt}`,
+    },
+  ]
 }
 
 export function getMarkdown(locale: Locale): string {
@@ -944,6 +1089,10 @@ ${content.requirements.limits.map((item) => `- ${item}`).join("\n")}
 ## ${content.review.title}
 
 ${content.review.intro}
+
+${getReviewLinks(content)
+  .map((link) => `[${link.label}](${link.href})`)
+  .join(" · ")}
 
 \`\`\`text
 ${content.review.prompt}

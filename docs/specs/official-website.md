@@ -8,12 +8,13 @@ Provide the same content in English and Korean, including an independent AI revi
 
 ## Source contract
 
-- Product source: [cc-agents-kit](https://github.com/AndrewDongminYoo/cc-agents-kit/tree/4a8947c3110459730e5c91eb75f7ecfe620be394).
-- Released inventory: three plugins, eleven skills, and eight hooks.
-- `guard-hooks` version `0.2.7`: eight hooks, including five blocking guards, two warnings, and one output mask.
-- `context-handoff` version `0.1.4`: six skills.
-- `repo-gate` version `0.1.6`: five skills.
-- Do not include features from the local `feat/markdownlint-triage` branch until a public source update is verified.
+- Product source: public release [v0.8.4](https://github.com/AndrewDongminYoo/cc-agents-kit/tree/2a934ed849c25a559439e96d952f0f18a67e8c97).
+- Derive inventory totals from the pinned plugin contents in `src/content.ts`.
+- `guard-hooks` version `0.5.2`: includes the post-commit `security-review-findings` warning hook.
+- `context-handoff` version `0.2.3`: includes Markdown, HTML, and JSON session exports.
+- `repo-gate` version `0.2.10`: includes `markdownlint-triage`.
+- `context-meter` and `quick-look` version `0.1.0`: function-hook mods requiring Claude Code mods support; Quick Look requires macOS.
+- Do not include untagged changes until a public release update is verified.
 - Keep `cc-agents-kit` as the product and marketplace name.
 - Owner links: [personal website](https://www.donminzzi.kr) and [GitHub](https://github.com/AndrewDongminYoo).
 
@@ -45,10 +46,12 @@ Retain React, Vite, Tailwind, and the Sera theme direction.
 Use native HTML controls for the site's simple interactions.
 Render English and Korean HTML during the build.
 Use explicit `/en/` and `/ko/` URLs and ordinary links for navigation.
+Show both language names with a clear current-language indicator.
+Keep language links free of stale fragments so switching from the non-sticky header does not jump to an earlier accordion target.
 Use a shared content module for the visible page and Markdown alternatives.
 Keep client state limited to useful interactions such as plugin selection and copy feedback.
 
-The final public domain is not yet supplied.
+The public domain is `https://skills.donminzzi.kr/`.
 Make it a build setting, require a valid public HTTPS origin for a release build, and prevent local preview metadata from being indexed.
 Generate canonical links, language alternatives, social metadata, structured data, a sitemap, crawler instructions, and machine-readable text from the configured source.
 Unknown routes must return a real 404 response on the supplied preview server.
@@ -65,6 +68,14 @@ Require source-backed findings about prerequisites, permissions, existing overla
 Ask for the smallest useful selection of plugins.
 Require explicit approval before installation or configuration changes.
 Provide both languages and a manual copy fallback.
+Provide Claude and ChatGPT links that prefill the same localized prompt used by the copy control and Markdown alternative.
+Expose these links in a page-tools rail alongside the content on desktop and above the content on narrow screens.
+Include page copying with a manual fallback and a link to the localized Markdown alternative.
+Keep the existing review disclosure as the full prompt's source and open it when its page-tools link is selected.
+Keep the main reading column centered with balanced outer gutters when the rail is visible.
+Expand the review disclosure across the installation section and wrap long URLs without nested scrollbars.
+Use the public release tag, rather than the commit SHA, in the review prompt's RAW README URL.
+Ask which harness the visitor uses when unknown, and distinguish Claude Code-specific runtime features from guidance that can be adapted elsewhere.
 
 ## Acceptance checks
 

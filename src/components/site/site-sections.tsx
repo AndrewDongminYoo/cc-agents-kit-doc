@@ -6,10 +6,15 @@ import {
   Check,
   ChevronDown,
   Clipboard,
+  FileText,
   GitFork,
+  Languages,
+  MessageCircle,
 } from "lucide-react"
 
 import {
+  getMarkdown,
+  getReviewLinks,
   installCommand,
   marketplaceCommand,
   release,
@@ -217,26 +222,91 @@ function MarketplaceCommand({ content }: Pick<SharedProps, "content">) {
   )
 }
 
-export function SiteHeader({ content, locale }: SharedProps) {
-  const alternateLocale: Locale = locale === "en" ? "ko" : "en"
-  const websiteSourceUrl = import.meta.env.VITE_SITE_REPO_URL?.trim()
+export function PageTools({ content, locale }: SharedProps) {
+  const markdown = getMarkdown(locale)
+  const { copyState, copyToClipboard } = useClipboardCopy(markdown)
+  const fallbackRef = useRef<HTMLTextAreaElement>(null)
+  const statusId = useId()
 
-  function preserveHashOnLocaleChange(
-    event: React.MouseEvent<HTMLAnchorElement>
-  ) {
-    if (
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey ||
-      !window.location.hash
-    ) {
-      return
+  useEffect(() => {
+    if (copyState === "failed") {
+      fallbackRef.current?.focus()
+      fallbackRef.current?.select()
     }
-    event.preventDefault()
-    window.location.href = `/${alternateLocale}/${window.location.hash}`
-  }
+  }, [copyState])
+
+  return (
+    <aside className="page-tools" aria-label={content.pageTools.label}>
+      <p className="page-tools__label">{content.pageTools.label}</p>
+      <nav className="page-tools__actions" aria-label={content.pageTools.label}>
+        <button
+          type="button"
+          onClick={copyToClipboard}
+          aria-label={content.pageTools.copyPage}
+          aria-describedby={statusId}
+        >
+          {copyState === "copied" ? (
+            <Check aria-hidden="true" />
+          ) : (
+            <Clipboard aria-hidden="true" />
+          )}
+          {copyState === "copied"
+            ? content.installation.copied
+            : content.pageTools.copyPage}
+        </button>
+        <a href={`/${locale}/index.md`}>
+          <FileText aria-hidden="true" />
+          {content.pageTools.markdown}
+          <ArrowUpRight aria-hidden="true" />
+        </a>
+        {getReviewLinks(content).map((link) => (
+          <a key={link.href} href={link.href} target="_blank" rel="noreferrer">
+            <MessageCircle aria-hidden="true" />
+            {link.label}
+            <ArrowUpRight aria-hidden="true" />
+          </a>
+        ))}
+        <a
+          href="#review"
+          onClick={() =>
+            document.getElementById("review")?.setAttribute("open", "")
+          }
+        >
+          <Clipboard aria-hidden="true" />
+          {content.review.promptLabel}
+        </a>
+      </nav>
+      <p
+        id={statusId}
+        className={copyState === "failed" ? "copy-status" : "sr-status"}
+        aria-live="polite"
+      >
+        {copyState === "copied"
+          ? content.installation.copied
+          : copyState === "failed"
+            ? content.installation.copyFailed
+            : ""}
+      </p>
+      {copyState === "failed" ? (
+        <div className="copy-fallback">
+          <label htmlFor={`${statusId}-page`}>
+            {content.pageTools.manualCopy}
+          </label>
+          <textarea
+            id={`${statusId}-page`}
+            ref={fallbackRef}
+            readOnly
+            value={markdown}
+            rows={6}
+          />
+        </div>
+      ) : null}
+    </aside>
+  )
+}
+
+export function SiteHeader({ content, locale }: SharedProps) {
+  const websiteSourceUrl = import.meta.env.VITE_SITE_REPO_URL?.trim()
 
   return (
     <>
@@ -245,9 +315,13 @@ export function SiteHeader({ content, locale }: SharedProps) {
       </a>
       <header className="site-header">
         <a className="brand" href={`/${locale}/`} aria-label="cc-agents-kit">
-          <span className="brand__mark" aria-hidden="true">
-            cc
-          </span>
+          <img
+            className="brand__mark"
+            src="/favicon.svg"
+            width="64"
+            height="64"
+            alt=""
+          />
           <span className="brand__text">
             <strong>cc-agents-kit</strong>
             <small>{content.brandNote}</small>
@@ -255,14 +329,26 @@ export function SiteHeader({ content, locale }: SharedProps) {
         </a>
         <MarketplaceCommand content={content} />
         <div className="header-actions">
-          <a
-            className="language-link"
-            href={`/${alternateLocale}/`}
-            hrefLang={alternateLocale}
-            onClick={preserveHashOnLocaleChange}
-          >
-            {content.alternateLanguage}
-          </a>
+          <nav className="language-switch" aria-label={content.languageLabel}>
+            <Languages aria-hidden="true" />
+            {(["ko", "en"] as const).map((language) => {
+              const name = language === "ko" ? "한국어" : "English"
+              return language === locale ? (
+                <span key={language} lang={language} aria-current="page">
+                  {name}
+                </span>
+              ) : (
+                <a
+                  key={language}
+                  href={`/${language}/`}
+                  hrefLang={language}
+                  lang={language}
+                >
+                  {name}
+                </a>
+              )
+            })}
+          </nav>
           <details className="github-menu">
             <summary>
               <GitFork aria-hidden="true" />
@@ -462,7 +548,6 @@ export function Installation({
           <p className="minor-label">{content.installation.selectedLabel}</p>
           <strong className="installation__selected">{selectedPlugin}</strong>
           <p className="installation__stance">{content.installation.stance}</p>
-          <Review content={content} />
         </div>
         <div className="installation__commands">
           <CopyBlock
@@ -477,6 +562,7 @@ export function Installation({
           />
         </div>
       </div>
+      <Review content={content} />
       <div className="upgrade-note">
         <div>
           <p className="minor-label">{content.installation.upgradeTitle}</p>
@@ -581,9 +667,13 @@ export function SiteFooter({ content, locale }: SharedProps) {
   return (
     <footer className="site-footer">
       <div className="site-footer__brand">
-        <span className="brand__mark" aria-hidden="true">
-          cc
-        </span>
+        <img
+          className="brand__mark"
+          src="/favicon.svg"
+          width="64"
+          height="64"
+          alt=""
+        />
         <div>
           <strong>cc-agents-kit</strong>
           <p>{content.footer.line}</p>

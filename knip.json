@@ -1,5 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["src/entry-server.tsx"],
-  "project": ["src/**/*.{css,ts,tsx}"]
+  "entry": [
+    "src/entry-server.tsx",
+    "tools/generate-og-image.mjs",
+    "tools/*.test.mjs"
+  ],
+  "ignoreBinaries": ["agent-browser"],
+  "project": ["src/**/*.{css,ts,tsx}", "tools/*.mjs"]
 }

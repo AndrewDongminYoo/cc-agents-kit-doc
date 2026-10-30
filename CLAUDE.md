@@ -6,7 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A bilingual (`/en/`, `/ko/`) static catalogue site for the released `cc-agents-kit` Claude Code plugins.
 Stack: React 19, Vite 8, Tailwind 4, TypeScript 6, pnpm 12.
-There is no test runner; the only automated behavioral check is the site validator described below.
+Node's built-in test runner covers the OG generator, and Playwright covers browser interactions in both languages at desktop and mobile widths.
+The static site validator remains a separate check for generated documents, metadata, and HTTP behavior.
 
 Product facts on the site are pinned to one public revision of the product repository (`release.sha` in `src/content.ts`).
 Read `docs/specs/official-website.md` (source and design contract) and `docs/notes/design-decisions.md` (why things are the way they are) before changing product claims, adding dependencies, or reworking the visual direction.
@@ -19,19 +20,22 @@ pnpm install --frozen-lockfile
 pnpm dev                      # Vite dev server (client-only, no static metadata)
 pnpm build                    # typecheck → client build → SSR build → scripts/generate-static.mjs
 pnpm preview                  # serve dist/ on http://127.0.0.1:4173 with the custom static server
-pnpm check                    # full gate: typecheck, lint, format:check, knip, build, verify:site:negative
+pnpm check                    # full gate: typecheck, lint, formatting, knip, unit tests, build, static validation, browser tests
 ```
 
 Individual checks:
 
 ```bash
 pnpm typecheck                # tsc -b
+pnpm test                     # unit tests → build → browser tests
+pnpm test:unit                # node --test tools/*.test.mjs
+pnpm test:browser             # Playwright against an existing dist/ build
 pnpm lint                     # eslint . && oxlint --deny-warnings .
 pnpm format                   # prettier --write (format:check for CI mode)
-pnpm knip                     # unused files/exports/deps; entry is src/entry-server.tsx
+pnpm knip                     # unused files, exports, and dependencies in the site and OG tooling
 pnpm verify:site              # validate an existing dist/ (requires a prior pnpm build)
 pnpm verify:site:negative     # same, plus negative fixtures that must fail
-trunk check --all --no-fix    # actionlint, git-diff-check, OSV Scanner, and pinact lint/upgrade
+trunk check --all --no-fix    # declared Trunk checks, including ESLint and Prettier
 ```
 
 Release build (Vercel uses this via `vercel.json`):
@@ -45,7 +49,9 @@ Without `SITE_URL`, `pnpm build` targets `http://localhost:4173` and emits `noin
 `VITE_SITE_REPO_URL` optionally supplies the website repository link; otherwise the footer shows it as pending.
 
 Git hooks are managed by Trunk (`.trunk/trunk.yaml`): pre-commit runs `pnpm lint` + `pnpm format:check`, pre-push runs `pnpm check`.
-CI (`.github/workflows/ci.yml`) runs `trunk check --all --no-fix` and `pnpm check` on Node 24.
+CI (`.github/workflows/ci.yml`) installs Chromium, then runs `trunk check --all --no-fix` and `pnpm check` on Node 24.
+Playwright owns a separate preview server on port 4183 and uses one worker, so tests do not consume or stop the operator's preview on port 4173.
+Install the browser locally with `pnpm exec playwright install chromium` before the first browser test run.
 The full scan includes the dependency lockfile even when a pull request does not change it.
 
 ## Architecture
@@ -60,7 +66,12 @@ Two consumers derive from it and must stay in sync automatically, not by hand:
 - The Markdown alternative (`dist/<locale>/index.md` and `llms.txt`) via `getMarkdown(locale)`.
 
 `toolSourceUrl(pluginId, toolId)` throws if a tool id is not listed in the plugin's `contents`, so adding a tool example means adding it to the plugin inventory too.
-Hooks link to `plugins/<id>/hooks/<tool>.sh`, skills to `plugins/<id>/skills/<tool>/SKILL.md`, always at the pinned SHA.
+Hooks link to `plugins/<id>/hooks/<tool>.sh`, skills to `plugins/<id>/skills/<tool>/SKILL.md`, and function-hook mods to `plugins/<id>/hooks/register.tsx`, always at the pinned SHA.
+Inventory totals derive from the shared plugin contents.
+`getReviewLinks` encodes the same localized review prompt for Claude and ChatGPT in both HTML and Markdown.
+`PageTools` exposes those links beside the page, copies `getMarkdown(locale)`, and links to the locale's Markdown alternative.
+The full review prompt uses the public release tag for its RAW README URL and expands across the installation section outside its two-column grid.
+Keep the reading column centered when the page-tools rail is visible, and wrap long prompt URLs without an internal scroll container.
 
 ### Build pipeline
 
@@ -71,6 +82,9 @@ Hooks link to `plugins/<id>/hooks/<tool>.sh`, skills to `plugins/<id>/skills/<to
 3. `generate-static.mjs` reads the client manifest, imports `dist-ssr/entry-server.js`, renders `/en/index.html` and `/ko/index.html` with full head metadata (canonical, hreflang, Open Graph, JSON-LD, Markdown alternate link), copies the English page to `dist/index.html`, and writes `404.html`, `robots.txt`, `sitemap.xml`, `llms.txt`, and both `index.md` files. It then deletes `dist-ssr/`.
 
 `src/main.tsx` derives the locale from `window.location.pathname` and hydrates when `#root` already has server-rendered children, so `pnpm dev` (empty root) and the built site (pre-rendered root) share one entry.
+The header shows both language names and marks the active language.
+Language changes use ordinary links to clean locale URLs and never carry a stale fragment such as `#review`.
+The header is not sticky, so changing language from it returns to the destination page's top without a separate scroll-restoration layer.
 `index.html` at the repo root is only the Vite dev shell; the generated documents do not use it as a template.
 
 ### SITE_URL gate
@@ -96,8 +110,15 @@ When adding a new metadata requirement, add both the positive assertion and a ne
 The `shadcn` and `tw-animate-css` packages exist only because the stylesheet imports them; `src/components/ui/`, `src/lib/`, and `src/assets/` are intentionally empty after the starter Button, `cn`, and Base UI dependencies were removed.
 Do not reintroduce a component library; the site uses native buttons, links, and `<details>` disclosures.
 Korean headings use the body sans stack, and word-preserving wrapping at 360px is a stated requirement.
+`public/favicon.svg` is the shared path-only brand mark used by the header, footer, and favicon.
+Keep the mark independent of runtime fonts so language changes cannot alter its lettering.
 
-`public/og-image.png` is a 1200×630 browser export of `public/og-image.svg`; regenerate and inspect the PNG after editing the SVG.
+`tools/generate-og-image.mjs` generates `public/og-image.svg` and its 1200×630 PNG from `tools/og-image.svg.template`, the inventory in `src/content.ts`, and the outlined mark in `public/favicon.svg`.
+Run `node tools/generate-og-image.mjs` after changing those inputs, and inspect the rendered PNG.
+The generator uses the installed TypeScript compiler to read content and the installed `agent-browser` CLI for PNG rendering; `--svg-only` only regenerates the SVG.
+Edit the template rather than the generated SVG or PNG.
+The full export writes `public/og-image.provenance.json` with both output hashes.
+Unit tests and static validation reject image pairs that no longer match that export record, including a changed SVG paired with an older PNG.
 `generate-static.mjs` prefers the PNG when present and falls back to the SVG.
 
 ## Conventions
