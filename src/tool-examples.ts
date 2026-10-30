@@ -48,7 +48,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       result:
         "The hook blocks a recognized secret path while allowing supported example files.",
       mechanism:
-        "Literal paths in prose can also trigger this pattern matcher.",
+        "It also checks recursive searches that can expose dotenv contents. Development paths designated by the operator can defer to normal permissions in auto mode; this access is off by default. Literal paths in prose can also trigger the matcher.",
     },
     "lockfile-drift-check": {
       title: "Notice a manifest edit that leaves the lockfile behind.",
@@ -76,23 +76,32 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       mechanism:
         "It runs after execution and requires gitleaks. Only recognized patterns in Bash output under 2 MB are covered.",
     },
+    "security-review-findings": {
+      mechanism:
+        "It reads existing review transcripts, does not start a review, and stays silent when no findings exist. An unchanged report is not repeated in the same session.",
+      result:
+        "The hook attaches the findings as a warning without blocking the commit.",
+      title: "See findings from automatic security reviews.",
+      trigger:
+        "A git commit completes and the harness has recorded security findings for this session's project in the last two days.",
+    },
     handoff: {
       title: "Start the next session with the decisions already made.",
       trigger:
         "Work needs to move to a fresh session at a clear stopping point.",
       result:
-        "The skill prints a self-contained brief in chat for you to copy into the next session.",
+        "The skill prints a self-contained brief, or writes a handoff file when requested or triggered by a context threshold.",
       mechanism:
-        "You carry the brief into the next session. Summaries lose detail, so use a handoff when context must cross a boundary.",
+        "Carry the brief or file into the next session. External statuses name a source for the receiver to re-read before acting.",
     },
     "session-export": {
       title: "Turn a session into something you can read later.",
       trigger:
         "You need to review a local Claude conversation without every tool response getting in the way.",
       result:
-        "The session becomes Markdown with tool calls collapsed or omitted.",
+        "The session becomes Markdown, standalone HTML, or structured JSON. Tool details and thinking are excluded by default.",
       mechanism:
-        "The export stays local. Default exports truncate individual tool results; choose options for the evidence you need.",
+        "The export stays local. Opt in to tool details and thinking when needed; included tool output is limited unless you request full output.",
     },
     "log-it": {
       title: "Put a lasting finding where it will be read again.",
@@ -169,6 +178,31 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       mechanism:
         "It distinguishes typos, ecosystem terms, and project vocabulary instead of adding every unknown token to a dictionary.",
     },
+    "markdownlint-triage": {
+      mechanism:
+        "The plugin ships markdownlint-summary on PATH. The skill distinguishes rule selection from formatting and content repairs.",
+      result:
+        "The skill summarizes findings by rule and scopes repairs to the affected files.",
+      title: "Turn a long Markdown lint log into a scoped repair.",
+      trigger:
+        "Markdownlint reports many violations across repository documents.",
+    },
+    "context-meter": {
+      mechanism:
+        "It requires Claude Code mods support, nudges handoff at 80%, and fails open when it cannot judge usage. Its estimates can miss images, PDFs, or prompt shrinkage.",
+      result:
+        "The mod displays context usage and can skip a premature automatic compaction once per reading.",
+      title: "Check context fill before automatic compaction.",
+      trigger:
+        "Advisor usage makes the harness report a higher fill than the request-level reading.",
+    },
+    "quick-look": {
+      mechanism:
+        "The mod keeps nine recent files and runs qlmanage without a shell. Previews open on the Mac's screen only when you request them.",
+      result: "A file picker or macOS Quick Look opens for the requested file.",
+      title: "Preview a recent file without leaving the conversation.",
+      trigger: "You enter /ql, /ql <n>, or /ql <path> in Claude Code on macOS.",
+    },
   },
   ko: {
     "dangerous-command-guard": {
@@ -208,7 +242,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       result:
         "알려진 비밀 정보 경로의 접근은 차단하고, 지원하는 예시 파일은 읽을 수 있게 둡니다.",
       mechanism:
-        "비밀 정보 경로를 패턴으로 검사합니다. 설명문에 적힌 경로도 검사에 걸릴 수 있습니다.",
+        "dotenv 내용을 노출할 수 있는 재귀 검색도 점검합니다. 운영자가 지정한 개발 경로는 auto 모드에서 일반 권한 판단에 맡길 수 있으며 기본 설정에서는 꺼져 있습니다. 설명문에 적힌 경로도 검사에 걸릴 수 있습니다.",
     },
     "lockfile-drift-check": {
       title: "의존성 목록만 바꾸고 잠금 파일을 놓쳤는지 알립니다.",
@@ -236,20 +270,29 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       mechanism:
         "명령 실행 후 작동하며 gitleaks가 필요합니다. 2MB 미만 Bash 출력의 알려진 패턴을 대상으로 하므로 모든 유출을 막는 기능은 아닙니다.",
     },
+    "security-review-findings": {
+      mechanism:
+        "기존 검토 기록을 읽으며 새 검토를 시작하지 않습니다. 발견된 문제가 없으면 출력하지 않고, 같은 세션에서 바뀌지 않은 결과는 반복하지 않습니다.",
+      result: "커밋을 차단하지 않고 발견된 문제를 경고로 덧붙입니다.",
+      title: "자동 보안 검토에서 발견된 문제를 확인합니다.",
+      trigger:
+        "git commit이 끝났고, 하네스가 최근 이틀 동안 현재 세션의 프로젝트에 보안 검토 결과를 기록했습니다.",
+    },
     handoff: {
       title: "이미 내린 결정을 다음 세션에서 다시 설명하지 않도록 합니다.",
       trigger: "작업을 잠시 멈추고 새 세션에서 이어가야 합니다.",
       result:
-        "이전 맥락과 다음 작업을 정리한 요약을 채팅에 출력합니다. 다음 세션에 복사해 사용할 수 있습니다.",
+        "요약을 채팅에 출력하거나, 파일로 요청했거나 컨텍스트 임계치에 도달한 경우 인수인계 파일을 작성합니다.",
       mechanism:
-        "출력된 요약을 다음 세션으로 가져가 사용합니다. 요약에는 정보 손실이 있으므로 세션 경계를 넘어야 할 때 사용합니다.",
+        "요약이나 파일을 다음 세션으로 가져갑니다. 외부 상태에는 다음 세션이 다시 확인할 수 있는 출처를 함께 적습니다.",
     },
     "session-export": {
       title: "지난 대화를 나중에도 읽기 편한 기록으로 바꿉니다.",
       trigger: "로컬 Claude 대화를 돌아보고 싶지만 도구 출력이 너무 많습니다.",
-      result: "도구 호출을 접거나 제외한 Markdown으로 대화를 내보냅니다.",
+      result:
+        "Markdown, 독립 HTML 또는 구조화된 JSON으로 대화를 내보냅니다. 기본 설정에서는 도구 상세와 사고 과정을 제외합니다.",
       mechanism:
-        "내보낸 데이터는 로컬에 남습니다. 기본 설정은 개별 도구 결과를 줄여 담으므로 필요한 근거에 맞춰 옵션을 선택해야 합니다.",
+        "내보낸 데이터는 로컬에 남습니다. 필요할 때 도구 상세와 사고 과정을 포함할 수 있으며, 전체 출력을 요청하지 않으면 도구 출력의 길이를 제한합니다.",
     },
     "log-it": {
       title: "다음에도 필요한 발견을 다시 읽힐 곳에 남깁니다.",
@@ -322,6 +365,29 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
         "단어 유형을 확인하고 적절한 사전을 활성화한 뒤 프로젝트 검사를 다시 실행합니다.",
       mechanism:
         "오타, 생태계 용어, 프로젝트 고유 어휘를 구분합니다. 모든 경고를 사용자 사전에 추가해 숨기지 않습니다.",
+    },
+    "markdownlint-triage": {
+      mechanism:
+        "플러그인이 markdownlint-summary 명령을 제공합니다. 검사 규칙을 고르는 일과 서식·내용을 고치는 일을 구분합니다.",
+      result: "규칙별로 결과를 요약하고 관련 파일로 수정 범위를 정합니다.",
+      title: "긴 Markdown 검사 로그에서 고칠 범위를 찾습니다.",
+      trigger: "여러 저장소 문서에서 Markdownlint 위반이 많이 보고됩니다.",
+    },
+    "context-meter": {
+      mechanism:
+        "Claude Code 모드 지원이 필요합니다. 사용량이 80%면 인수인계를 안내하고 판단할 수 없으면 압축을 허용합니다. 이미지·PDF나 프롬프트 축소는 추정에 반영되지 않을 수 있습니다.",
+      result:
+        "사용량을 표시하고, 너무 이른 자동 압축을 측정값 하나당 한 번 보류할 수 있습니다.",
+      title: "자동 압축 전에 컨텍스트 사용량을 확인합니다.",
+      trigger:
+        "advisor 사용량 때문에 하네스가 요청별 측정값보다 높은 사용량을 표시합니다.",
+    },
+    "quick-look": {
+      mechanism:
+        "최근 파일 아홉 개를 기억하고 셸 없이 qlmanage를 실행합니다. 요청했을 때만 Mac 화면에서 미리보기를 엽니다.",
+      result: "파일 선택 목록이나 요청한 파일의 macOS Quick Look이 열립니다.",
+      title: "대화 중에 최근 파일을 미리 봅니다.",
+      trigger: "macOS의 Claude Code에서 /ql, /ql <n>, /ql <path>를 입력합니다.",
     },
   },
 }

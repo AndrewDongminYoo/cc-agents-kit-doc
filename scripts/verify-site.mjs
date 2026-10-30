@@ -4,6 +4,7 @@ import { access, readFile } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
+import { verifyImageProvenance } from "../tools/generate-og-image.mjs"
 import { agentUserAgentPattern, agentUserAgents } from "./agent-user-agents.mjs"
 import { isReleaseSiteUrl, normalizeSiteUrl } from "./site-url.mjs"
 import { createStaticServer } from "./static-server.mjs"
@@ -20,6 +21,70 @@ const release = isReleaseSiteUrl(normalizedSiteUrl)
 
 function requireMatch(document, expression, message) {
   assert.match(document, expression, message)
+}
+
+function verifyBrandMark(svg) {
+  assert.match(
+    svg,
+    /<path\b/,
+    "The brand mark must contain fixed vector outlines."
+  )
+  assert.doesNotMatch(
+    svg,
+    /<text\b|font-family|@font-face|<foreignObject\b/,
+    "The brand mark must be font-independent."
+  )
+}
+
+function verifySocialCard(svg, markdown) {
+  for (const [description, label] of [
+    ["plugins", "PLUGINS"],
+    ["workflow skills", "SKILLS"],
+    ["defensive hooks", "HOOKS"],
+    ["function-hook mods", "MODS"],
+  ]) {
+    const count = markdown.match(
+      new RegExp(`^- (\\d+) ${description}$`, "m")
+    )?.[1]
+    assert.ok(
+      count,
+      `The English Markdown is missing its ${description} count.`
+    )
+    assert.match(
+      svg,
+      new RegExp(`>\\s*${count.padStart(2, "0")} ${label}\\s*</text>`),
+      `OG inventory label ${label} is stale.`
+    )
+  }
+}
+
+function verifyReviewLinks(locale, document) {
+  const links = [
+    ...document.matchAll(
+      /href="(https:\/\/(?:claude\.ai\/new\?|chatgpt\.com\/\?)[^"]+)"/g
+    ),
+  ].map((match) => new URL(match[1].replaceAll("&amp;", "&")))
+  for (const host of ["claude.ai", "chatgpt.com"]) {
+    assert.equal(
+      links.filter((link) => link.hostname === host).length,
+      1,
+      `${locale} is missing a unique ${host} review link.`
+    )
+  }
+  const prompts = links.map((link) => link.searchParams.get("q"))
+  for (const prompt of prompts) {
+    assert.match(
+      prompt ?? "",
+      /https:\/\/raw\.githubusercontent\.com\/AndrewDongminYoo\/cc-agents-kit\/v\d+\.\d+\.\d+\/README\.md/,
+      `${locale} review prompt must name a tagged public README.`
+    )
+  }
+  assert.equal(
+    prompts[0],
+    prompts[1],
+    `${locale} review providers must receive the same prompt.`
+  )
+  return links
 }
 
 function verifyDocument(locale, document) {
@@ -71,12 +136,60 @@ function verifyDocument(locale, document) {
     ),
     `${locale} robots policy is incorrect.`
   )
-  for (const pluginId of ["guard-hooks", "context-handoff", "repo-gate"]) {
+  for (const pluginId of [
+    "guard-hooks",
+    "context-handoff",
+    "repo-gate",
+    "context-meter",
+    "quick-look",
+    "markdownlint-triage",
+    "security-review-findings",
+  ]) {
     assert.ok(
       document.includes(pluginId),
       `${locale} is missing ${pluginId} from the initial HTML.`
     )
   }
+  verifyReviewLinks(locale, document)
+  requireMatch(
+    document,
+    /<aside class="page-tools" aria-label="[^"]+">/,
+    `${locale} page tools are missing.`
+  )
+  requireMatch(
+    document,
+    new RegExp(`<a href="/${locale}/index.md">`),
+    `${locale} page tools must link to the localized Markdown document.`
+  )
+  requireMatch(
+    document,
+    new RegExp(`aria-label="${locale === "en" ? "Copy page" : "페이지 복사"}"`),
+    `${locale} page copy control is missing.`
+  )
+  const languageSwitch =
+    document.match(/<nav class="language-switch"[^>]*>[\s\S]*?<\/nav>/)?.[0] ??
+    ""
+  assert.ok(languageSwitch, `${locale} language switch is missing.`)
+  assert.ok(
+    languageSwitch.includes('aria-current="page"'),
+    `${locale} current language is not marked.`
+  )
+  assert.ok(
+    languageSwitch.includes(`href="/${otherLocale}/"`),
+    `${locale} alternate language link must use a clean locale URL.`
+  )
+  const brandImages = [
+    ...document.matchAll(/<img[^>]*class="brand__mark"[^>]*>/g),
+  ]
+  assert.equal(
+    brandImages.length,
+    2,
+    `${locale} must use fixed images for both brand marks.`
+  )
+  assert.ok(
+    brandImages.every(([markup]) => markup.includes('src="/favicon.svg"')),
+    `${locale} brand marks must share the favicon asset.`
+  )
   for (const modifier of [
     "section-intro--inverse",
     "copy-block--inverse",
@@ -134,8 +247,26 @@ async function verifyStaticOutput() {
     ),
     "The English document lacks the favicon link."
   )
+  verifyBrandMark(
+    await readFile(path.join(outputDirectory, "favicon.svg"), "utf8")
+  )
+  verifySocialCard(
+    await readFile(path.join(outputDirectory, "og-image.svg"), "utf8"),
+    enMarkdown
+  )
   assert.ok(enMarkdown.trim(), "English Markdown must not be empty.")
   assert.ok(koMarkdown.trim(), "Korean Markdown must not be empty.")
+  for (const [locale, html, markdown] of [
+    ["en", enHtml, enMarkdown],
+    ["ko", koHtml, koMarkdown],
+  ]) {
+    for (const link of verifyReviewLinks(locale, html)) {
+      assert.ok(
+        markdown.includes(`](${link.href})`),
+        `${locale} Markdown must contain the same review links as HTML.`
+      )
+    }
+  }
   assert.match(
     robots,
     release ? /Allow: \// : /Disallow: \//,
@@ -204,6 +335,18 @@ async function verifyStaticOutput() {
     "llms.txt must use Markdown links for its index entries."
   )
   await access(path.join(outputDirectory, socialImage))
+  if (socialImage === "og-image.png") {
+    verifyImageProvenance(
+      await readFile(path.join(outputDirectory, "og-image.svg")),
+      await readFile(path.join(outputDirectory, "og-image.png")),
+      JSON.parse(
+        await readFile(
+          path.join(outputDirectory, "og-image.provenance.json"),
+          "utf8"
+        )
+      )
+    )
+  }
   await access(path.join(outputDirectory, "favicon.svg"))
   await verifyTrustPages(sitemap)
   await verifyNotFoundDocuments()
@@ -492,9 +635,102 @@ async function verifyPreviewBehavior() {
 }
 
 async function verifyNegativeFixtures() {
+  const socialSvg = await readFile(
+    path.join(outputDirectory, "og-image.svg"),
+    "utf8"
+  )
+  const markdown = await readFile(
+    path.join(outputDirectory, "en/index.md"),
+    "utf8"
+  )
+  const staleSocialSvg = socialSvg.replace(/\d+ PLUGINS/, "STALE PLUGINS")
+  assert.notEqual(
+    staleSocialSvg,
+    socialSvg,
+    "The stale OG fixture must change a label."
+  )
+  assert.throws(
+    () => verifySocialCard(staleSocialSvg, markdown),
+    /OG inventory label PLUGINS is stale/,
+    "The validator must reject stale social-image inventory."
+  )
+  const brandMark = await readFile(
+    path.join(outputDirectory, "favicon.svg"),
+    "utf8"
+  )
+  assert.throws(
+    () => verifyBrandMark(brandMark.replace("</svg>", "<text>cc</text></svg>")),
+    /font-independent/,
+    "The validator must reject font-dependent brand lettering."
+  )
   const document = await readFile(
     path.join(outputDirectory, "en", "index.html"),
     "utf8"
+  )
+  assert.throws(
+    () =>
+      verifyDocument(
+        "en",
+        document.replace(
+          'class="language-switch"',
+          'class="missing-language-switch"'
+        )
+      ),
+    /language switch is missing/,
+    "The validator must reject a missing language switch."
+  )
+  assert.throws(
+    () =>
+      verifyDocument(
+        "en",
+        document.replace('aria-current="page"', 'aria-current="false"')
+      ),
+    /current language is not marked/,
+    "The validator must reject a missing current-language indicator."
+  )
+  assert.throws(
+    () =>
+      verifyDocument(
+        "en",
+        document.replace('href="/ko/"', 'href="/ko/#review"')
+      ),
+    /alternate language link must use a clean locale URL/,
+    "The validator must reject a stale fragment in the language link."
+  )
+  assert.throws(
+    () =>
+      verifyDocument(
+        "en",
+        document.replace('class="page-tools"', 'class="missing-tools"')
+      ),
+    /page tools are missing/,
+    "The validator must reject missing page tools."
+  )
+  assert.throws(
+    () =>
+      verifyDocument(
+        "en",
+        document.replaceAll(
+          "https://claude.ai/new?",
+          "https://example.invalid/new?"
+        )
+      ),
+    /missing a unique claude.ai review link/,
+    "The validator must reject a missing review provider."
+  )
+  assert.throws(
+    () =>
+      verifyDocument(
+        "en",
+        document.replace(/(https:\/\/claude\.ai\/new\?q=)[^"]+/, "$1broken")
+      ),
+    /review prompt must name a tagged public README/,
+    "The validator must reject a broken encoded review prompt."
+  )
+  assert.throws(
+    () => verifyDocument("en", document.replaceAll("quick-look", "")),
+    /missing quick-look/,
+    "The validator must reject missing mod content."
   )
   assert.throws(
     () =>

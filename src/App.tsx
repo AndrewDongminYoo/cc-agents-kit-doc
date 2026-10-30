@@ -5,6 +5,7 @@ import {
   Faq,
   Hero,
   Installation,
+  PageTools,
   PluginCatalogue,
   Requirements,
   SiteFooter,
@@ -21,20 +22,23 @@ function App({ locale }: { locale: Locale }) {
     <LucideProvider nonScalingStroke strokeWidth={1.75}>
       <div className="site-shell">
         <SiteHeader content={content} locale={locale} />
-        <main id="main-content">
-          <Hero content={content} />
-          <PluginCatalogue
-            content={content}
-            locale={locale}
-            selectedPlugin={selectedPlugin}
-            onSelect={setSelectedPlugin}
-          />
-          <div className="install-drawer">
-            <Installation content={content} selectedPlugin={selectedPlugin} />
-          </div>
-          <Requirements content={content} />
-          <Faq content={content} />
-        </main>
+        <div className="page-layout">
+          <PageTools content={content} locale={locale} />
+          <main id="main-content">
+            <Hero content={content} />
+            <PluginCatalogue
+              content={content}
+              locale={locale}
+              selectedPlugin={selectedPlugin}
+              onSelect={setSelectedPlugin}
+            />
+            <div className="install-drawer">
+              <Installation content={content} selectedPlugin={selectedPlugin} />
+            </div>
+            <Requirements content={content} />
+            <Faq content={content} />
+          </main>
+        </div>
         <SiteFooter content={content} locale={locale} />
       </div>
     </LucideProvider>

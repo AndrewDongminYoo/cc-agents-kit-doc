@@ -16,24 +16,23 @@ runtimes:
     - python@3.14.4
 # This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
 lint:
+  definitions:
+    - name: pinact
+      commands:
+        - name: upgrade
+          enabled: true
+  disabled:
+    # it runs `oxlint --format`
+    - oxlint
   enabled:
     - actionlint@1.7.12
+    - eslint@10.13.0
     - git-diff-check
     - osv-scanner@2.7.0
-    - pinact@4.1.1!:
-        commands: [lint, upgrade]
+    - pinact@4.1.1!
+    - prettier@3.9.10
 actions:
   definitions:
-    - id: project-quality-pre-commit
-      description: Run the project lint and format checks before a commit.
-      display_name: Project Quality Pre-Commit
-      run: |
-        #!/usr/bin/env bash
-        set -euo pipefail
-        pnpm lint
-        pnpm format:check
-      triggers:
-        - git_hooks: [pre-commit]
     - id: project-quality-pre-push
       description: Run the complete project check before a push.
       display_name: Project Quality Pre-Push
@@ -50,5 +49,4 @@ actions:
     - trunk-check-pre-push
     - trunk-fmt-pre-commit
     # Project Specific Actions
-    - project-quality-pre-commit
     - project-quality-pre-push

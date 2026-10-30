@@ -94,6 +94,94 @@ button {
   overflow: clip;
 }
 
+.page-layout {
+  display: grid;
+  grid-template-areas: "tools" "content";
+  max-width: 1680px;
+  margin: 0 auto;
+}
+
+.page-layout > main {
+  grid-area: content;
+  min-width: 0;
+}
+
+.page-tools {
+  grid-area: tools;
+  min-width: 0;
+  margin: 1.5rem 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: var(--text-label);
+}
+
+.page-tools__label {
+  margin: 0 0 0.5rem;
+  color: var(--taupe-dark);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.page-tools__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1rem;
+}
+
+.page-tools__actions :is(a, button) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.5rem 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.page-tools__actions :is(a, button):hover {
+  color: var(--rust);
+}
+
+.page-tools__actions svg {
+  flex: 0 0 0.875rem;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.page-tools__actions a svg:last-child:not(:first-child) {
+  margin-left: auto;
+}
+
+@media (min-width: 1440px) {
+  .page-layout {
+    grid-template-areas: ". content tools";
+    grid-template-columns: minmax(12rem, 1fr) minmax(0, 1120px) minmax(
+        12rem,
+        1fr
+      );
+  }
+
+  .page-tools {
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+    max-height: calc(100vh - 4rem);
+    max-width: 14rem;
+    margin: 3rem 1.5rem 0 0;
+    padding: 0 0 0 1.25rem;
+    overflow-y: auto;
+    border-bottom: 0;
+    border-left: 1px solid var(--line);
+  }
+
+  .page-tools__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .skip-link {
   position: fixed;
   z-index: 100;
@@ -132,19 +220,10 @@ button {
 }
 
 .brand__mark {
-  display: grid;
+  display: block;
   width: 2.55rem;
   height: 2.55rem;
   flex: 0 0 auto;
-  place-items: center;
-  border-radius: 50%;
-  color: var(--paper-soft);
-  background: var(--rust);
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-style: italic;
-  font-weight: 700;
-  letter-spacing: -0.08em;
 }
 
 .brand__text {
@@ -163,27 +242,6 @@ button {
   font-size: 0.62rem;
   letter-spacing: 0.04em;
 }
-.language-link {
-  position: relative;
-  font-size: 0.8125rem;
-}
-.language-link::after {
-  position: absolute;
-  right: 0;
-  bottom: -0.35rem;
-  left: 0;
-  height: 1px;
-  background: currentColor;
-  content: "";
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform 180ms ease;
-}
-.language-link:hover::after {
-  transform: scaleX(1);
-  transform-origin: left;
-}
-
 .header-actions {
   display: flex;
   align-items: center;
@@ -191,13 +249,42 @@ button {
   gap: 1rem;
 }
 
-.language-link {
+.language-switch {
   display: inline-flex;
-  min-height: 2.75rem;
   align-items: center;
-
+  gap: 0.25rem;
+  padding: 0.2rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
   font-size: 0.8125rem;
+}
+
+.language-switch > svg {
+  width: 1rem;
+  height: 1rem;
+  margin: 0 0.35rem 0 0.5rem;
+  color: var(--taupe-dark);
+}
+
+.language-switch :is(a, span) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 0.7rem;
+  border-radius: 999px;
+  color: var(--ink-soft);
   font-weight: 700;
+}
+
+.language-switch [aria-current="page"] {
+  color: var(--paper-soft);
+  background: var(--ink);
+}
+
+.language-switch a:hover {
+  color: var(--rust);
+  background: var(--paper-soft);
 }
 
 .github-menu {
@@ -970,7 +1057,7 @@ main,
     gap: 0.5rem;
   }
 
-  .language-link {
+  .language-switch {
     font-size: 0.8125rem;
   }
 
@@ -1556,7 +1643,8 @@ dd {
 }
 
 .installation-review {
-  margin-top: 1.5rem;
+  padding: 1.5rem 0 2rem;
+  border-top: 1px solid var(--line-light);
 }
 
 .installation-review summary {
@@ -1575,6 +1663,20 @@ dd {
 
 .installation-review .copy-block {
   margin-top: 1rem;
+}
+
+.installation-review .copy-block--multiline pre {
+  max-height: none;
+  overflow: visible;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.installation-review .copy-block--multiline code {
+  font: inherit;
 }
 
 .requirements__grid {

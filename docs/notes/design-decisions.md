@@ -2,8 +2,9 @@
 
 ## Evidence
 
-The public source revision is `4a8947c3110459730e5c91eb75f7ecfe620be394`.
-The local product checkout contains unmerged work, so it is not the release content source.
+At launch, the public source revision was `4a8947c3110459730e5c91eb75f7ecfe620be394`.
+The local product checkout contained unmerged work, so it was not the release content source.
+The active product revision now lives in `release.sha` in `src/content.ts` and the source contract in `docs/specs/official-website.md`.
 The public GitHub profile lists `https://www.donminzzi.kr` as the owner's website.
 
 The primary external references are the [product repository](https://github.com/AndrewDongminYoo/cc-agents-kit/tree/4a8947c3110459730e5c91eb75f7ecfe620be394), the [Is Agentic guide](https://is-agentic.com/), and its [methodology](https://is-agentic.com/methodology).
@@ -43,9 +44,9 @@ Remove the unused starter Button wrapper and its Base UI, class-variance-authori
 Retain dependencies that the stylesheet actually imports, and document those CSS imports in the Knip configuration.
 Use the existing React and Vite support to generate static HTML for two language routes.
 The site needs no authentication, database, paid service, or application API.
-The social image source is `public/og-image.svg`.
-The matching `public/og-image.png` is a 1200 by 630 pixel browser export of that source.
-After changing the SVG, render and inspect a new PNG before release.
+The social image layout is maintained in `tools/og-image.svg.template`.
+`tools/generate-og-image.mjs` combines that layout with the shared brand mark and current content inventory, writes `public/og-image.svg`, and exports a matching 1200 by 630 pixel PNG through `agent-browser`.
+After changing those inputs, run the generator and inspect the PNG before release.
 
 ## Typography and diagram revision
 
