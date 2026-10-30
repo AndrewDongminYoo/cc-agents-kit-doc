@@ -48,7 +48,8 @@ SITE_URL=https://example.com pnpm build:release
 Without `SITE_URL`, `pnpm build` targets `http://localhost:4173` and emits `noindex,nofollow` metadata plus a disallow-all `robots.txt`.
 `VITE_SITE_REPO_URL` optionally supplies the website repository link; otherwise the footer shows it as pending.
 
-Git hooks are managed by Trunk (`.trunk/trunk.yaml`): pre-commit runs `pnpm lint` + `pnpm format:check`, pre-push runs `pnpm check`.
+Git hooks are managed by Trunk (`.trunk/trunk.yaml`): the built-in pre-commit action uses Trunk's enabled linters and formatters, and the project pre-push action runs `pnpm check`.
+Do not add a duplicate pre-commit action for the same ESLint and Prettier checks.
 CI (`.github/workflows/ci.yml`) installs Chromium, then runs `trunk check --all --no-fix` and `pnpm check` on Node 24.
 Playwright owns a separate preview server on port 4183 and uses one worker, so tests do not consume or stop the operator's preview on port 4173.
 Install the browser locally with `pnpm exec playwright install chromium` before the first browser test run.
