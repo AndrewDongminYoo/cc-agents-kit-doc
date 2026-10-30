@@ -4,6 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "packageManager": "pnpm@12.3.4",
+  "engines": {
+    "node": "26.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "pnpm typecheck && vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/generate-static.mjs",

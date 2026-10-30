@@ -5,7 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 A bilingual (`/en/`, `/ko/`) static catalogue site for the released `cc-agents-kit` Claude Code plugins.
-Stack: React 19, Vite 8, Tailwind 4, TypeScript 6, pnpm 12.
+Stack: React 19, Vite 8, Tailwind 4, TypeScript 6, Node.js 26, pnpm 12.
+Use `.node-version` for the local runtime and `package.json` for the pinned pnpm version.
 Node's built-in test runner covers the OG generator, and Playwright covers browser interactions in both languages at desktop and mobile widths.
 The static site validator remains a separate check for generated documents, metadata, and HTTP behavior.
 
@@ -44,13 +45,14 @@ Release build (Vercel uses this via `vercel.json`):
 SITE_URL=https://example.com pnpm build:release
 ```
 
+Vercel uses Node.js 26.x from `engines.node` in `package.json`, which overrides the project's Node.js version setting.
 `build:release` rejects a missing, non-HTTPS, localhost, IP, credentialed, or path-bearing `SITE_URL`.
 Without `SITE_URL`, `pnpm build` targets `http://localhost:4173` and emits `noindex,nofollow` metadata plus a disallow-all `robots.txt`.
 `VITE_SITE_REPO_URL` optionally supplies the website repository link; otherwise the footer shows it as pending.
 
 Git hooks are managed by Trunk (`.trunk/trunk.yaml`): the built-in pre-commit action uses Trunk's enabled linters and formatters, and the project pre-push action runs `pnpm check`.
 Do not add a duplicate pre-commit action for the same ESLint and Prettier checks.
-CI (`.github/workflows/ci.yml`) installs Chromium, then runs `trunk check --all --no-fix` and `pnpm check` on Node 24.
+CI (`.github/workflows/ci.yml`) reads Node.js 26 from `.node-version`, installs Chromium, then runs `trunk check --all --no-fix` and `pnpm check`.
 Playwright owns a separate preview server on port 4183 and uses one worker, so tests do not consume or stop the operator's preview on port 4173.
 Install the browser locally with `pnpm exec playwright install chromium` before the first browser test run.
 The full scan includes the dependency lockfile even when a pull request does not change it.
