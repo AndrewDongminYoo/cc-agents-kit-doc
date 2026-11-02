@@ -1,0 +1,9 @@
+# Keep GitHub dependency scanning on the application dependency graph.
+pmOnFail: ignore
+
+# GHSA-g3hv-75wg-m249: these consumers use the retained named API.
+overrides:
+  "@eslint/config-array@0>minimatch": ^11.0.1
+  "@ts-morph/common@0>minimatch": ^11.0.1
+  "@typescript-eslint/typescript-estree@8>minimatch": ^11.0.1
+  "eslint@10>minimatch": ^11.0.1
