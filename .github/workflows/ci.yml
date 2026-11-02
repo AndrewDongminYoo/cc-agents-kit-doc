@@ -25,6 +25,12 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - name: Check dependency graph visibility
+        run: |
+          if grep -q '^---$' pnpm-lock.yaml; then
+            echo "::error::pnpm-lock.yaml must contain one application document"
+            exit 1
+          fi
       - name: Install Chromium for browser tests
         run: pnpm exec playwright install --with-deps chromium
       - name: Setup Trunk
