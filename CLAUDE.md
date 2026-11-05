@@ -53,7 +53,7 @@ Without `SITE_URL`, `pnpm build` targets `http://localhost:4173` and emits `noin
 Git hooks are managed by Trunk (`.trunk/trunk.yaml`): the built-in pre-commit action uses Trunk's enabled linters and formatters, and the project pre-push action runs `pnpm check`.
 Do not add a duplicate pre-commit action for the same ESLint and Prettier checks.
 CI (`.github/workflows/ci.yml`) reads Node.js 26 from `.node-version`, installs Chromium, then runs `trunk check --all --no-fix` and `pnpm check`.
-Playwright owns a separate preview server on port 4183 and uses one worker, so tests do not consume or stop the operator's preview on port 4173.
+Playwright owns a separate preview server on port 4183 and uses one worker, so tests do not consume or stop the user's preview on port 4173.
 Install the browser locally with `pnpm exec playwright install chromium` before the first browser test run.
 The full scan includes the dependency lockfile even when a pull request does not change it.
 
