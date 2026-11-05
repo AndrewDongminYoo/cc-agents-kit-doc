@@ -50,7 +50,7 @@ After changing those inputs, run the generator and inspect the PNG before releas
 
 ## Typography and diagram revision
 
-The operator reported broken Korean wrapping, weak text hierarchy, excessive decorative styling, and overlapping diagram labels.
+Broken Korean wrapping, weak text hierarchy, excessive decorative styling, and overlapping diagram labels were reported.
 Keep the existing routes, product facts, controls, warm color tokens, and installed fonts.
 Use the body sans-serif stack for Korean headings and preserve words at every viewport.
 Use distinct size and weight tokens for the page title, section titles, item titles, body text, and labels.
@@ -62,7 +62,7 @@ Validate generated output with `pnpm check`, then inspect Korean mobile and desk
 
 ## Problem-based exploration
 
-The operator requested a more useful installation argument and an interactive view of the included skills instead of navigation tabs, scroll targets, counts, and repeated rules.
+A more useful installation argument and an interactive view of the included skills were requested instead of navigation tabs, scroll targets, counts, and repeated rules.
 The main page now starts with a problem selector that changes the plugin and tool details in place.
 Each tool has a localized trigger, outcome, mechanism, and source link based on the pinned public revision.
 Examples describe behavior; the website does not execute the demonstrated commands or skills.
@@ -110,6 +110,6 @@ The failures that the repository can fix were addressed the same day; search-ind
 - Served Markdown opens with a frontmatter block (title, description, canonical, last_updated), the root `/index.md` aliases the English document, sitemap entries carry `lastmod`, and the JSON-LD author links to the GitHub profile through `sameAs`.
 - `llms.txt` becomes a navigation index (links plus the when-to-use guidance) under the 30,000-character guideline, and the full bilingual content moves to `llms-full.txt`.
 - Adding the filesystem handle to `routes` silently dropped the whole top-level `headers` block on the live site: HTML lost `Vary` and hashed assets lost their immutable cache header, observed by curl after the 404 deployment. Response headers are now `continue` routes placed before the negotiation routes, the `headers` block is gone, and the validator refuses a configuration that brings it back.
-- Crawler policy, decided by the operator on 2026-09-10: known AI crawlers and agents (the Anthropic and OpenAI crawler names plus the user agents the scanner probes) receive Markdown for HTML routes without an `Accept` header, and `robots.txt` names them in an explicitly allowed group. The list lives once in `scripts/agent-user-agents.mjs`; `vercel.json` repeats it as a regular expression because static JSON cannot import it, and the validator fails when the two differ. Listing on skills.sh was declined for now because the plugins are Claude Code only.
+- Crawler policy, decided on 2026-09-10: known AI crawlers and agents (the Anthropic and OpenAI crawler names plus the user agents the scanner probes) receive Markdown for HTML routes without an `Accept` header, and `robots.txt` names them in an explicitly allowed group. The list lives once in `scripts/agent-user-agents.mjs`; `vercel.json` repeats it as a regular expression because static JSON cannot import it, and the validator fails when the two differ. Listing on skills.sh was declined for now because the plugins are Claude Code only.
 - `llms.txt` gains a "When to use this" section in each language, derived from the same problem statements and best-fit copy that the catalogue page shows, so the guidance cannot drift from the page.
-- About, Contact, and Privacy pages are added in both languages with the operator's contact details, rendered as static prose pages that share the site stylesheet but not the React bundle. The privacy text describes only what the site and the plugins actually do: no cookies, no analytics, no telemetry, and best-effort output masking.
+- About, Contact, and Privacy pages are added in both languages with my contact details, rendered as static prose pages that share the site stylesheet but not the React bundle. The privacy text describes only what the site and the plugins actually do: no cookies, no analytics, no telemetry, and best-effort output masking.

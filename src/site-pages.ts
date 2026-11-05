@@ -1,6 +1,6 @@
 import type { Locale } from "./content"
 
-// Owner contact details shown on the trust pages. Supplied by the operator on 2026-09-09.
+// Owner contact details shown on the trust pages. Supplied on 2026-09-09.
 const owner = {
   name: "Dongmin Yu",
   koreanName: "유동민",

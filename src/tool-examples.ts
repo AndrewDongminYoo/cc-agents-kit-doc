@@ -48,7 +48,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       result:
         "The hook blocks a recognized secret path while allowing supported example files.",
       mechanism:
-        "It also checks recursive searches that can expose dotenv contents. Development paths designated by the operator can defer to normal permissions in auto mode; this access is off by default. Literal paths in prose can also trigger the matcher.",
+        "It also checks recursive searches that can expose dotenv contents. Development paths designated by the user can defer to normal permissions in auto mode; this access is off by default. Literal paths in prose can also trigger the matcher.",
     },
     "lockfile-drift-check": {
       title: "Notice a manifest edit that leaves the lockfile behind.",
