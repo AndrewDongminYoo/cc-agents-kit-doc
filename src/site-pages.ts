@@ -54,7 +54,7 @@ const en: readonly SitePage[] = [
       {
         heading: "Who maintains it",
         paragraphs: [
-          `The plugins and this site are written and maintained by ${owner.name} (${owner.koreanName}, also known as ${owner.alias}), a mobile developer working mainly in Flutter and React Native who also builds developer tooling for AI coding agents. The source code is published under the GitHub account AndrewDongminYoo.`,
+          `I'm ${owner.name} (${owner.koreanName}, also known as ${owner.alias}), and I write and maintain the plugins and this site. I'm a mobile developer working mainly in Flutter and React Native, and I also build developer tooling for AI coding agents. I publish the source code under the GitHub account AndrewDongminYoo.`,
           `The plugin source is licensed under Apache-2.0, with adapted parts that keep their original MIT license. The credits file in the repository lists those parts and their authors.`,
         ],
       },
@@ -75,7 +75,7 @@ const en: readonly SitePage[] = [
       {
         heading: "Maintainer",
         paragraphs: [
-          `${owner.name} (${owner.koreanName}, also known as ${owner.alias}) maintains cc-agents-kit and this documentation site.`,
+          `I'm ${owner.name} (${owner.koreanName}, also known as ${owner.alias}), and I maintain cc-agents-kit and this documentation site.`,
           `Email: ${owner.email}`,
           `Website: ${owner.website}`,
           `GitHub: ${owner.github}`,
@@ -140,7 +140,7 @@ const ko: readonly SitePage[] = [
       {
         heading: "누가 관리하나요",
         paragraphs: [
-          `플러그인과 이 사이트는 ${owner.koreanName}(${owner.name}, ${owner.alias})이 작성하고 관리합니다. Flutter와 React Native를 주로 다루는 모바일 개발자이며, AI 코딩 에이전트를 위한 개발 도구도 만들고 있습니다. 소스 코드는 GitHub 계정 AndrewDongminYoo에 공개되어 있습니다.`,
+          `저는 ${owner.koreanName}(${owner.name}, ${owner.alias})이며, 플러그인과 이 사이트를 작성하고 관리합니다. Flutter와 React Native를 주로 다루는 모바일 개발자이며, AI 코딩 에이전트를 위한 개발 도구도 만들고 있습니다. 소스 코드는 제 GitHub 계정 AndrewDongminYoo에 공개하고 있습니다.`,
           "플러그인 소스는 Apache-2.0 라이선스를 따르며, 일부 가져온 부분은 원래의 MIT 라이선스를 유지합니다. 저장소의 크레딧 파일에 해당 부분과 원작자가 정리되어 있습니다.",
         ],
       },
@@ -161,7 +161,7 @@ const ko: readonly SitePage[] = [
       {
         heading: "관리자",
         paragraphs: [
-          `${owner.koreanName}(${owner.name}, ${owner.alias})이 cc-agents-kit과 이 문서 사이트를 관리합니다.`,
+          `저는 ${owner.koreanName}(${owner.name}, ${owner.alias})이며, cc-agents-kit과 이 문서 사이트를 관리합니다.`,
           `이메일: ${owner.email}`,
           `웹사이트: ${owner.website}`,
           `GitHub: ${owner.github}`,
