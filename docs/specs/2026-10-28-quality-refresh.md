@@ -17,5 +17,5 @@ Preserve application behavior, existing exclusions, and generated artifacts.
 
 ## Publication
 
-Keep changes local until the operator approves publication for this repository.
+Keep changes local until the user approves publication for this repository.
 After approval, continue CI and hosted review through the gated merge and requested cleanup and memory record.
