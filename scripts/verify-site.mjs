@@ -154,6 +154,7 @@ function verifyDocument(locale, document) {
     "repo-gate",
     "context-meter",
     "quick-look",
+    "reply-language",
     "markdownlint-triage",
     "security-review-findings",
     "compaction-brief",

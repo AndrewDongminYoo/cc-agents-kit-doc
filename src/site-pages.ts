@@ -47,7 +47,7 @@ const en: readonly SitePage[] = [
       {
         heading: "What this is",
         paragraphs: [
-          "cc-agents-kit is a small marketplace of plugins for Claude Code. guard-hooks checks common command mistakes, context-handoff carries work across sessions, and repo-gate prepares repository delivery. Two function-hook mods add context usage readings with context-meter and macOS file previews with quick-look.",
+          "cc-agents-kit is a small marketplace of plugins for Claude Code. guard-hooks checks common command mistakes, context-handoff carries work across sessions, and repo-gate prepares repository delivery. Two function-hook mods add context usage readings with context-meter and macOS file previews with quick-look. reply-language is a temporary hooks plugin that keeps replies in the language set in Claude Code until anthropics/claude-code#99704 is fixed.",
           "This site is the documentation for those plugins. It explains what each plugin does, what it requires, and where it stops, so that a developer can decide whether to install any of it. The product facts on this site are pinned to one public revision of the source repository, and every claim links back to that revision.",
         ],
       },
@@ -133,7 +133,7 @@ const ko: readonly SitePage[] = [
       {
         heading: "무엇인가요",
         paragraphs: [
-          "cc-agents-kit은 Claude Code용 플러그인을 모아 둔 작은 마켓플레이스입니다. guard-hooks는 흔한 명령 실수를 점검하고, context-handoff는 세션 사이에 작업을 이어주며, repo-gate는 커밋과 푸시를 준비합니다. 함수 훅 모드인 context-meter는 컨텍스트 사용량을 표시하고, quick-look은 macOS에서 파일 미리보기를 엽니다.",
+          "cc-agents-kit은 Claude Code용 플러그인을 모아 둔 작은 마켓플레이스입니다. guard-hooks는 흔한 명령 실수를 점검하고, context-handoff는 세션 사이에 작업을 이어주며, repo-gate는 커밋과 푸시를 준비합니다. 함수 훅 모드인 context-meter는 컨텍스트 사용량을 표시하고, quick-look은 macOS에서 파일 미리보기를 엽니다. 임시 훅 플러그인인 reply-language는 anthropics/claude-code#99704가 해결될 때까지 Claude Code에 설정한 언어로 답변하도록 유지합니다.",
           "이 사이트는 그 플러그인들의 문서입니다. 각 플러그인이 무엇을 하고, 무엇을 요구하며, 어디까지만 책임지는지 설명하여 개발자가 설치 여부를 판단할 수 있게 합니다. 사이트의 제품 정보는 소스 저장소의 공개 리비전 하나에 고정되어 있고, 모든 설명은 그 리비전으로 연결됩니다.",
         ],
       },
