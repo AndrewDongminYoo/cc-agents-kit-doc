@@ -65,26 +65,23 @@ function useClipboardCopy(code: string) {
   const [copyState, setCopyState] = useState<CopyState>("idle")
 
   async function copyToClipboard() {
-    let timeoutId: number | undefined
-
     try {
       if (!navigator.clipboard?.writeText) {
         throw new Error("Clipboard API unavailable")
       }
-      await Promise.race([
-        navigator.clipboard.writeText(code),
-        new Promise<never>((_, reject) => {
-          timeoutId = window.setTimeout(
-            () => reject(new Error("Clipboard request timed out")),
-            1500
-          )
-        }),
-      ])
+      await new Promise<void>((resolve, reject) => {
+        const timeoutId = window.setTimeout(
+          () => reject(new Error("Clipboard request timed out")),
+          1500
+        )
+        Promise.resolve()
+          .then(() => navigator.clipboard.writeText(code))
+          .then(resolve, reject)
+          .finally(() => window.clearTimeout(timeoutId))
+      })
       setCopyState("copied")
     } catch {
       setCopyState("failed")
-    } finally {
-      if (timeoutId !== undefined) window.clearTimeout(timeoutId)
     }
   }
 

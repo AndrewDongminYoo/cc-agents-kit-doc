@@ -73,6 +73,31 @@ for (const locale of ["en", "ko"] as const) {
     ).toEqual({ end: copied.length, start: 0 })
   })
 
+  test(`${locale}: page copying times out and can be retried`, async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: { writeText: () => new Promise<void>(() => {}) },
+      })
+    })
+    await page.goto(`/${locale}/`)
+    const copyButton = page.getByRole("button", {
+      exact: true,
+      name: pageCopyLabel,
+    })
+    await copyButton.click()
+    await expect(page.locator(".page-tools textarea")).toBeVisible()
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, "clipboard", {
+        value: { writeText: async () => {} },
+      })
+    })
+    await copyButton.click()
+    await expect(page.locator(".page-tools textarea")).toHaveCount(0)
+  })
+
   test(`${locale}: the expanded prompt has reading space without nested scrolling`, async ({
     page,
   }) => {
