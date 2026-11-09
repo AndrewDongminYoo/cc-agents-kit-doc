@@ -74,6 +74,8 @@ The browser suite uses one worker and owns port 4183, leaving the normal preview
 `src/content.ts` is the canonical source for the visible bilingual facts.
 Product facts are pinned to public release `v0.9.0`, including the two function-hook mods and the two `context-handoff` compaction hooks.
 The page tools provide page copying, a localized Markdown link, and Claude and ChatGPT links with a prefilled review prompt.
+Each of those two links carries its service's logo from `src/components/site/brand-logos.tsx`, drawn unaltered in one solid colour.
+The Claude and OpenAI marks are trademarks of Anthropic and OpenAI, used only to label links that open their services, and this repository's licence does not cover them.
 They sit beside a centered content column on wide screens and above it on narrow screens.
 The existing AI review section retains the full prompt and manual copy fallback.
 The review prompt uses the readable release tag in its RAW README URL and expands across the installation section without nested scrolling.

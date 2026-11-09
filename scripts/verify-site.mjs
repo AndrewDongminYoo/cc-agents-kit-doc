@@ -71,6 +71,18 @@ function verifyReviewLinks(locale, document) {
       `${locale} is missing a unique ${host} review link.`
     )
   }
+  for (const [host, brand] of [
+    ["claude\\.ai\\/new\\?", "claude"],
+    ["chatgpt\\.com\\/\\?", "chatgpt"],
+  ]) {
+    requireMatch(
+      document,
+      new RegExp(
+        `href="https:\\/\\/${host}[^"]*"[^>]*><svg class="brand-logo" data-brand="${brand}"`
+      ),
+      `${locale} ${brand} review link is missing its brand logo.`
+    )
+  }
   const prompts = links.map((link) => link.searchParams.get("q"))
   for (const prompt of prompts) {
     assert.match(
@@ -697,6 +709,15 @@ async function verifyNegativeFixtures() {
       ),
     /alternate language link must use a clean locale URL/,
     "The validator must reject a stale fragment in the language link."
+  )
+  assert.throws(
+    () =>
+      verifyReviewLinks(
+        "en",
+        document.replace('data-brand="chatgpt"', 'data-brand="generic"')
+      ),
+    /chatgpt review link is missing its brand logo/,
+    "The validator must reject a review link without its brand logo."
   )
   assert.throws(
     () =>

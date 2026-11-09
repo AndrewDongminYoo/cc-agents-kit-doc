@@ -988,14 +988,16 @@ export function getReviewLinks(content: SiteContent) {
   const prompt = encodeURIComponent(content.review.prompt)
   return [
     {
+      brand: "claude",
       label: content.review.openInClaude,
       href: `https://claude.ai/new?q=${prompt}`,
     },
     {
+      brand: "chatgpt",
       label: content.review.openInChatGPT,
       href: `https://chatgpt.com/?hints=search&q=${prompt}`,
     },
-  ]
+  ] as const
 }
 
 export function getMarkdown(locale: Locale): string {
