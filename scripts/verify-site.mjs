@@ -40,7 +40,7 @@ function verifySocialCard(svg, markdown) {
   for (const [description, label] of [
     ["plugins", "PLUGINS"],
     ["workflow skills", "SKILLS"],
-    ["defensive hooks", "HOOKS"],
+    ["hooks", "HOOKS"],
     ["function-hook mods", "MODS"],
   ]) {
     const count = markdown.match(
@@ -144,6 +144,7 @@ function verifyDocument(locale, document) {
     "quick-look",
     "markdownlint-triage",
     "security-review-findings",
+    "compaction-brief",
   ]) {
     assert.ok(
       document.includes(pluginId),

@@ -194,9 +194,9 @@ const sharedPlugins = {
   "context-handoff": {
     id: "context-handoff",
     number: "02",
-    version: "0.2.3",
+    version: "0.3.0",
     type: "skills",
-    count: 6,
+    count: 8,
     contents: [
       "handoff",
       "session-export",
@@ -204,12 +204,15 @@ const sharedPlugins = {
       "wayfinder",
       "context-budget",
       "config-gc",
+      "compaction-brief",
+      "post-compact-retrieval",
     ],
+    hookContents: ["compaction-brief", "post-compact-retrieval"],
   },
   "repo-gate": {
     id: "repo-gate",
     number: "03",
-    version: "0.2.10",
+    version: "0.2.12",
     type: "skills",
     count: 6,
     contents: [
@@ -241,16 +244,34 @@ const sharedPlugins = {
 
 const inventory = Object.values(sharedPlugins)
 
+type SharedPlugin = (typeof inventory)[number]
+
+// A skills plugin may also ship hook scripts; those tools are hooks, not skills.
+function isHookTool(plugin: SharedPlugin, toolId: string): boolean {
+  return (
+    plugin.type === "hooks" ||
+    ("hookContents" in plugin &&
+      plugin.hookContents.some((item) => item === toolId))
+  )
+}
+
 export const release = {
-  version: "0.8.4",
-  sha: "2a934ed849c25a559439e96d952f0f18a67e8c97",
+  version: "0.9.0",
+  sha: "bb45a5013cf6b5ff3ad83fd7dd5dcecc2dfab9d9",
   pluginCount: inventory.length,
   skillCount: inventory
     .filter((plugin) => plugin.type === "skills")
-    .reduce((total, plugin) => total + plugin.contents.length, 0),
-  hookCount: inventory
-    .filter((plugin) => plugin.type === "hooks")
-    .reduce((total, plugin) => total + plugin.contents.length, 0),
+    .reduce(
+      (total, plugin) =>
+        total +
+        plugin.contents.filter((item) => !isHookTool(plugin, item)).length,
+      0
+    ),
+  hookCount: inventory.reduce(
+    (total, plugin) =>
+      total + plugin.contents.filter((item) => isHookTool(plugin, item)).length,
+    0
+  ),
   modCount: inventory.filter((plugin) => plugin.type === "mods").length,
 } as const
 
@@ -259,12 +280,11 @@ export function toolSourceUrl(pluginId: PluginId, toolId: string): string {
   if (!plugin.contents.some((item) => item === toolId)) {
     throw new Error("The tool does not belong to the selected plugin.")
   }
-  const sourcePath =
-    plugin.type === "hooks"
-      ? `plugins/${pluginId}/hooks/${toolId}.sh`
-      : plugin.type === "mods"
-        ? `plugins/${pluginId}/hooks/register.tsx`
-        : `plugins/${pluginId}/skills/${toolId}/SKILL.md`
+  const sourcePath = isHookTool(plugin, toolId)
+    ? `plugins/${pluginId}/hooks/${toolId}.sh`
+    : plugin.type === "mods"
+      ? `plugins/${pluginId}/hooks/register.tsx`
+      : `plugins/${pluginId}/skills/${toolId}/SKILL.md`
   return `${sourceRepositoryUrl}/blob/${release.sha}/${sourcePath}`
 }
 
@@ -307,7 +327,7 @@ const en: SiteContent = {
     stats: [
       { value: String(release.pluginCount), label: "plugins" },
       { value: String(release.skillCount), label: "workflow skills" },
-      { value: String(release.hookCount), label: "defensive hooks" },
+      { value: String(release.hookCount), label: "hooks" },
       { value: String(release.modCount), label: "function-hook mods" },
     ],
   },
@@ -345,7 +365,7 @@ const en: SiteContent = {
         summary:
           "Carry decisions, evidence, and unfinished work across sessions.",
         overlap:
-          "If your existing handoff and note workflow already preserves what you need, you may not need another set of skills.",
+          "If your existing handoff, note, and compaction workflow already preserves what you need, you may not need these skills and hooks.",
       },
       "repo-gate": {
         title: "The code works. Delivery still takes work.",
@@ -401,12 +421,13 @@ const en: SiteContent = {
       name: "context-handoff",
       shortDescription: "Carry the right context into the next session.",
       description:
-        "Six skills keep long-running work understandable across sessions. They cover handoffs, readable exports, durable notes, multi-session wayfinding, context budgets, and configuration cleanup.",
+        "Six skills and two hooks keep long-running work understandable across sessions. The skills cover handoffs, readable exports, durable notes, multi-session wayfinding, context budgets, and configuration cleanup. The hooks give every compaction summary the same sections as a handoff and name the transcript after a compaction.",
       idealFor:
         "Developers whose work spans long sessions, multiple decisions, or a growing Claude Code configuration.",
-      contentsLabel: "6 skills",
+      contentsLabel: "6 skills · 2 hooks",
       notes: [
         "Transfer and archive session context",
+        "Shape compaction summaries as handoff briefs",
         "Route durable findings",
         "Inspect context and configuration growth",
       ],
@@ -652,7 +673,7 @@ const ko: SiteContent = {
     stats: [
       { value: String(release.pluginCount), label: "플러그인" },
       { value: String(release.skillCount), label: "워크플로 스킬" },
-      { value: String(release.hookCount), label: "방어용 훅" },
+      { value: String(release.hookCount), label: "훅" },
       { value: String(release.modCount), label: "함수 훅 모드" },
     ],
   },
@@ -688,7 +709,7 @@ const ko: SiteContent = {
         title: "새 세션마다 같은 설명을 반복해요.",
         summary: "결정 사항과 근거, 남은 작업을 다음 세션으로 가져갑니다.",
         overlap:
-          "기존 인수인계와 기록 방식으로 필요한 정보를 충분히 이어가고 있다면, 스킬을 추가할 필요가 없을 수 있습니다.",
+          "기존 인수인계, 기록, 컨텍스트 압축 방식으로 필요한 정보를 충분히 이어가고 있다면, 이 스킬과 훅을 추가할 필요가 없을 수 있습니다.",
       },
       "repo-gate": {
         title: "코드는 됐는데, 마무리할 일이 남았어요.",
@@ -741,12 +762,13 @@ const ko: SiteContent = {
       name: "context-handoff",
       shortDescription: "다음 세션에 필요한 컨텍스트를 정확하게 전달합니다.",
       description:
-        "장기간 진행되는 작업을 여러 세션에서도 이해할 수 있도록 스킬 여섯 개가 지원합니다. 핸드오프, 읽기 쉬운 내보내기, 장기 기록, 여러 세션에 걸친 작업 계획, 컨텍스트 예산, 설정 정리를 다룹니다.",
+        "장기간 진행되는 작업을 여러 세션에서도 이해할 수 있도록 스킬 여섯 개와 훅 두 개가 지원합니다. 스킬은 핸드오프, 읽기 쉬운 내보내기, 장기 기록, 여러 세션에 걸친 작업 계획, 컨텍스트 예산, 설정 정리를 다룹니다. 훅은 컨텍스트 압축 요약을 핸드오프와 같은 항목으로 구성하고, 압축이 끝나면 원본 대화 기록 파일의 위치를 알려 줍니다.",
       idealFor:
         "작업이 긴 세션과 여러 의사결정에 걸쳐 진행되거나 Claude Code 설정이 계속 늘어나는 개발자에게 적합합니다.",
-      contentsLabel: "스킬 6개",
+      contentsLabel: "스킬 6개 · 훅 2개",
       notes: [
         "세션 컨텍스트 전달 및 보관",
+        "압축 요약을 핸드오프 형식으로 구성",
         "장기 보존할 발견 사항 분류",
         "컨텍스트와 설정의 증가 상태 점검",
       ],

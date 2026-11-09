@@ -8,11 +8,11 @@ Provide the same content in English and Korean, including an independent AI revi
 
 ## Source contract
 
-- Product source: public release [v0.8.4](https://github.com/AndrewDongminYoo/cc-agents-kit/tree/2a934ed849c25a559439e96d952f0f18a67e8c97).
-- Derive inventory totals from the pinned plugin contents in `src/content.ts`.
+- Product source: public release [v0.9.0](https://github.com/AndrewDongminYoo/cc-agents-kit/tree/bb45a5013cf6b5ff3ad83fd7dd5dcecc2dfab9d9).
+- Derive inventory totals from the pinned plugin contents in `src/content.ts`; a tool listed in a plugin's `hookContents` counts as a hook and links to `hooks/<tool>.sh`, whatever the plugin's type.
 - `guard-hooks` version `0.5.2`: includes the post-commit `security-review-findings` warning hook.
-- `context-handoff` version `0.2.3`: includes Markdown, HTML, and JSON session exports.
-- `repo-gate` version `0.2.10`: includes `markdownlint-triage`.
+- `context-handoff` version `0.3.0`: includes Markdown, HTML, and JSON session exports, and the `compaction-brief` (`PreCompact`) and `post-compact-retrieval` (`SessionStart`) hooks.
+- `repo-gate` version `0.2.12`: includes `markdownlint-triage`.
 - `context-meter` and `quick-look` version `0.1.0`: function-hook mods requiring Claude Code mods support; Quick Look requires macOS.
 - Do not include untagged changes until a public release update is verified.
 - Keep `cc-agents-kit` as the product and marketplace name.

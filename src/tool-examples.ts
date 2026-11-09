@@ -90,9 +90,9 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       trigger:
         "Work needs to move to a fresh session at a clear stopping point.",
       result:
-        "The skill prints a self-contained brief, or writes a handoff file when requested or triggered by a context threshold.",
+        "The skill prints a self-contained brief with the same FIXED and RECAP sections as a compaction summary, or writes a handoff file when requested or triggered by a context threshold.",
       mechanism:
-        "Carry the brief or file into the next session. External statuses name a source for the receiver to re-read before acting.",
+        "The task, acceptance criteria, and user constraints are copied word for word. External statuses name a source for the receiver to re-read before acting.",
     },
     "session-export": {
       title: "Turn a session into something you can read later.",
@@ -134,6 +134,23 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
         "The skill presents evidence and asks for an individual decision before reversible cleanup.",
       mechanism:
         "Removal requires approval for each item. It does not bulk-delete configuration on its own.",
+    },
+    "compaction-brief": {
+      title: "Keep what the remaining work needs through a compaction.",
+      trigger:
+        "Claude Code compacts the conversation, manually or automatically.",
+      result:
+        "The hook supplies the summary instructions: a FIXED block copies the task, acceptance criteria, and user constraints word for word, and a RECAP block restates the current state.",
+      mechanism:
+        "It never blocks or delays a compaction and prints the brief even for malformed input. Set CC_GUARD_DISABLE_COMPACTION_BRIEF=1 to turn it off.",
+    },
+    "post-compact-retrieval": {
+      title: "Look up what the summary dropped instead of guessing.",
+      trigger: "A session continues right after a compaction.",
+      result:
+        "The hook adds one line that names the full transcript file and asks Claude to grep it before re-deriving or asking for anything.",
+      mechanism:
+        "It prints nothing when the harness provides no transcript path. Set CC_GUARD_DISABLE_POST_COMPACT_RETRIEVAL=1 to turn it off.",
     },
     "semantic-commit": {
       title: "Make a mixed diff easier to review.",
@@ -282,9 +299,9 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       title: "이미 내린 결정을 다음 세션에서 다시 설명하지 않도록 합니다.",
       trigger: "작업을 잠시 멈추고 새 세션에서 이어가야 합니다.",
       result:
-        "요약을 채팅에 출력하거나, 파일로 요청했거나 컨텍스트 임계치에 도달한 경우 인수인계 파일을 작성합니다.",
+        "압축 요약과 같은 FIXED·RECAP 항목으로 요약을 채팅에 출력하거나, 파일로 요청했거나 컨텍스트 임계치에 도달한 경우 인수인계 파일을 작성합니다.",
       mechanism:
-        "요약이나 파일을 다음 세션으로 가져갑니다. 외부 상태에는 다음 세션이 다시 확인할 수 있는 출처를 함께 적습니다.",
+        "작업 요청, 완료 기준, 사용자 제약은 원문 그대로 옮깁니다. 외부 상태에는 다음 세션이 다시 확인할 수 있는 출처를 함께 적습니다.",
     },
     "session-export": {
       title: "지난 대화를 나중에도 읽기 편한 기록으로 바꿉니다.",
@@ -324,6 +341,22 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
         "사용 여부의 근거를 보여주고, 항목별 결정을 받은 뒤 되돌릴 수 있게 정리합니다.",
       mechanism:
         "각 항목의 삭제에는 승인이 필요합니다. 설정을 한꺼번에 자동 삭제하지 않습니다.",
+    },
+    "compaction-brief": {
+      title: "컨텍스트를 압축해도 남은 작업에 필요한 내용은 유지합니다.",
+      trigger: "Claude Code가 수동 또는 자동으로 대화를 압축합니다.",
+      result:
+        "압축 요약의 작성 지침을 제공합니다. 작업 요청, 완료 기준, 사용자 제약은 FIXED 항목에 원문 그대로 옮기고, 현재 상태는 RECAP 항목에 새로 정리합니다.",
+      mechanism:
+        "압축을 차단하거나 늦추지 않으며, 입력이 잘못되어도 지침을 출력합니다. CC_GUARD_DISABLE_COMPACTION_BRIEF=1로 끌 수 있습니다.",
+    },
+    "post-compact-retrieval": {
+      title: "요약에서 빠진 내용은 추측하지 않고 원본에서 찾습니다.",
+      trigger: "압축이 끝난 직후 세션이 이어집니다.",
+      result:
+        "전체 대화 기록 파일의 경로를 한 줄로 알려 주고, 요약에 없는 내용은 다시 추론하거나 묻기 전에 그 파일을 grep으로 찾도록 안내합니다.",
+      mechanism:
+        "하네스가 대화 기록 경로를 제공하지 않으면 아무것도 출력하지 않습니다. CC_GUARD_DISABLE_POST_COMPACT_RETRIEVAL=1로 끌 수 있습니다.",
     },
     "semantic-commit": {
       title: "뒤섞인 변경을 리뷰하기 좋은 커밋으로 나눕니다.",

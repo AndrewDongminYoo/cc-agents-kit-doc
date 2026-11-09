@@ -72,7 +72,7 @@ The browser suite uses one worker and owns port 4183, leaving the normal preview
 ## Content and architecture
 
 `src/content.ts` is the canonical source for the visible bilingual facts.
-Product facts are pinned to public release `v0.8.4`, including the two function-hook mods.
+Product facts are pinned to public release `v0.9.0`, including the two function-hook mods and the two `context-handoff` compaction hooks.
 The page tools provide page copying, a localized Markdown link, and Claude and ChatGPT links with a prefilled review prompt.
 They sit beside a centered content column on wide screens and above it on narrow screens.
 The existing AI review section retains the full prompt and manual copy fallback.
@@ -122,4 +122,4 @@ The build renders them at `/en/<page>/` and `/ko/<page>/` as static HTML with a 
 
 - [Official website specification](docs/specs/official-website.md)
 - [Design decisions](docs/notes/design-decisions.md)
-- [Pinned `cc-agents-kit` source](https://github.com/AndrewDongminYoo/cc-agents-kit/tree/2a934ed849c25a559439e96d952f0f18a67e8c97)
+- [Pinned `cc-agents-kit` source](https://github.com/AndrewDongminYoo/cc-agents-kit/tree/bb45a5013cf6b5ff3ad83fd7dd5dcecc2dfab9d9)
