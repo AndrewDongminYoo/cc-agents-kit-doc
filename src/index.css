@@ -155,6 +155,11 @@ button {
   margin-left: auto;
 }
 
+/* Brand marks keep one solid colour on hover: the brand terms forbid altering them. */
+.page-tools__actions .brand-logo {
+  color: var(--ink);
+}
+
 @media (min-width: 1440px) {
   .page-layout {
     grid-template-areas: ". content tools";

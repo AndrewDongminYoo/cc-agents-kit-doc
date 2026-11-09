@@ -9,8 +9,9 @@ import {
   FileText,
   GitFork,
   Languages,
-  MessageCircle,
 } from "lucide-react"
+
+import { BrandLogo } from "@/components/site/brand-logos"
 
 import {
   getMarkdown,
@@ -258,7 +259,7 @@ export function PageTools({ content, locale }: SharedProps) {
         </a>
         {getReviewLinks(content).map((link) => (
           <a key={link.href} href={link.href} target="_blank" rel="noreferrer">
-            <MessageCircle aria-hidden="true" />
+            <BrandLogo brand={link.brand} />
             {link.label}
             <ArrowUpRight aria-hidden="true" />
           </a>
