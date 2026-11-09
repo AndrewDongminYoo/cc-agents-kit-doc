@@ -28,7 +28,7 @@ lint:
     - actionlint@1.7.12
     - eslint@10.14.0
     - git-diff-check
-    - osv-scanner@2.7.0
+    - osv-scanner@2.7.1
     - pinact@4.1.1!
     - prettier@3.9.10
 actions:

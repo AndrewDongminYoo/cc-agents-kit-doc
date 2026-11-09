@@ -37,5 +37,5 @@ jobs:
         uses: trunk-io/trunk-action/setup@e1234e67a86010d61ddac8d8ebf4b783e2ffd2fa # v2.0.0
       - name: Add Trunk launcher to PATH
         run: dirname "$TRUNK_PATH" >> "$GITHUB_PATH"
-      - run: trunk check --all --no-fix --ci
+      - run: trunk check --all --no-fix --ci --action_timeout 99m
       - run: pnpm check
