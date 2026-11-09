@@ -220,6 +220,24 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       title: "Preview a recent file without leaving the conversation.",
       trigger: "You enter /ql, /ql <n>, or /ql <path> in Claude Code on macOS.",
     },
+    "reply-language-reminder": {
+      mechanism:
+        "It never blocks. It reads the target from the language setting or CC_REPLY_LANGUAGE and stays silent for a language without its own script.",
+      result:
+        "The hook adds a sentence that allows English only for text someone other than the user reads, or a one-line reminder after other tool results.",
+      title: "Restate the reply language where replies tend to drift.",
+      trigger:
+        "A subagent reports back in English, or a tool result arrives, while the language setting names Korean.",
+    },
+    "reply-language-check": {
+      mechanism:
+        "It removes code, URLs, paths, and quoted lines before counting and judges only at 40 letters or more. It cannot hide the draft the user already saw.",
+      result:
+        "The hook blocks the stop once and asks for the same content in the target language, with no new tool work.",
+      title: "Ask for a restatement when a reply drifted.",
+      trigger:
+        "Under 30% of the letters in a response's visible text, or in its last block, are in the target script.",
+    },
   },
   ko: {
     "dangerous-command-guard": {
@@ -421,6 +439,24 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       result: "파일 선택 목록이나 요청한 파일의 macOS Quick Look이 열립니다.",
       title: "대화 중에 최근 파일을 미리 봅니다.",
       trigger: "macOS의 Claude Code에서 /ql, /ql <n>, /ql <path>를 입력합니다.",
+    },
+    "reply-language-reminder": {
+      mechanism:
+        "작업을 차단하지 않습니다. language 설정이나 CC_REPLY_LANGUAGE에서 대상 언어를 읽고, 고유한 문자가 없는 언어에서는 아무것도 출력하지 않습니다.",
+      result:
+        "사용자가 아닌 사람이 읽는 텍스트에만 영어를 허용하는 문장을 추가하고, 그 밖의 도구 결과 뒤에는 한 줄짜리 안내를 추가합니다.",
+      title: "답변 언어가 바뀌기 쉬운 순간에 응답 언어를 다시 알려 줍니다.",
+      trigger:
+        "language 설정이 한국어인데 서브에이전트가 영어로 보고하거나 도구 결과가 도착합니다.",
+    },
+    "reply-language-check": {
+      mechanism:
+        "코드, URL, 경로, 인용문을 제외하고 글자를 세며, 40자 이상일 때만 판단합니다. 사용자가 이미 본 초안을 숨기지는 못합니다.",
+      result:
+        "종료를 한 번 막고, 새 도구 작업 없이 같은 내용을 대상 언어로 다시 쓰도록 요청합니다.",
+      title: "언어가 바뀐 답변은 다시 쓰도록 요청합니다.",
+      trigger:
+        "응답에서 보이는 텍스트나 마지막 블록의 글자 중 대상 문자의 비율이 30% 미만입니다.",
     },
   },
 }

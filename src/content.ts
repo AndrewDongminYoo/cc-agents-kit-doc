@@ -240,6 +240,14 @@ const sharedPlugins = {
     type: "mods",
     version: "0.1.0",
   },
+  "reply-language": {
+    contents: ["reply-language-reminder", "reply-language-check"],
+    count: 2,
+    id: "reply-language",
+    number: "06",
+    type: "hooks",
+    version: "0.1.0",
+  },
 } as const
 
 const inventory = Object.values(sharedPlugins)
@@ -256,8 +264,8 @@ function isHookTool(plugin: SharedPlugin, toolId: string): boolean {
 }
 
 export const release = {
-  version: "0.9.0",
-  sha: "bb45a5013cf6b5ff3ad83fd7dd5dcecc2dfab9d9",
+  version: "0.10.0",
+  sha: "da6d8c7e4c54d55685c5fd402d17d8f59488cbf4",
   pluginCount: inventory.length,
   skillCount: inventory
     .filter((plugin) => plugin.type === "skills")
@@ -298,7 +306,7 @@ const en: SiteContent = {
   meta: {
     title: "cc-agents-kit — Guardrails and workflow tools for Claude Code",
     description:
-      "Focused Claude Code plugins and mods for safer commands, durable context, repository delivery, context usage, and file previews.",
+      "Focused Claude Code plugins and mods for safer commands, durable context, repository delivery, context usage, file previews, and reply language.",
   },
   languageName: "English",
   languageLabel: "Language",
@@ -387,6 +395,13 @@ const en: SiteContent = {
         summary: "Open recent files in macOS Quick Look with /ql.",
         title: "I want to preview the files the agent touched.",
       },
+      "reply-language": {
+        overlap:
+          "A temporary workaround for anthropics/claude-code#99704. Skip it if replies already stay in your language or your language uses the Latin script, and uninstall it once the issue is fixed.",
+        summary:
+          "Restate the reply language after tool results and ask for a rewrite when a reply drifted.",
+        title: "Replies drift into English although I set a language.",
+      },
     },
   },
   catalogue: {
@@ -474,6 +489,21 @@ const en: SiteContent = {
         "No model tool opens a preview window",
       ],
       shortDescription: "Preview recent files on your Mac.",
+    },
+    {
+      ...sharedPlugins["reply-language"],
+      contentsLabel: "2 hooks",
+      description:
+        "A temporary workaround for anthropics/claude-code#99704, where Opus 5.5 writes user-facing text in English although the language setting names another language. One hook restates the rule on each user message and after tool results. The other blocks a stop once and asks for the same content in the target language when under 30% of a response's visible letters are in the target script.",
+      idealFor:
+        "Claude Code users whose language setting names a language with its own script, such as Korean, Japanese, Chinese, Russian, Arabic, Hindi, Thai, Greek, or Hebrew.",
+      name: "reply-language",
+      notes: [
+        "Temporary: uninstall once the issue is fixed",
+        "Requires python3 and fails open without it",
+        "Cannot hide a draft that was already shown",
+      ],
+      shortDescription: "Keep replies in the language you set.",
     },
   ],
   workflow: {
@@ -644,7 +674,7 @@ const ko: SiteContent = {
   meta: {
     title: "cc-agents-kit — Claude Code를 위한 가드레일과 워크플로 도구",
     description:
-      "명령 점검, 세션 인수인계, 커밋 준비, 컨텍스트 사용량 확인과 파일 미리보기를 돕는 Claude Code 플러그인과 모드를 살펴보세요.",
+      "명령 점검, 세션 인수인계, 커밋 준비, 컨텍스트 사용량 확인, 파일 미리보기와 응답 언어 유지를 돕는 Claude Code 플러그인과 모드를 살펴보세요.",
   },
   languageName: "한국어",
   languageLabel: "언어 선택",
@@ -729,6 +759,13 @@ const ko: SiteContent = {
         summary: "/ql 명령으로 최근 파일을 macOS Quick Look에서 엽니다.",
         title: "에이전트가 다룬 파일을 바로 보고 싶어요.",
       },
+      "reply-language": {
+        overlap:
+          "anthropics/claude-code#99704를 우회하는 임시 플러그인입니다. 답변이 이미 설정한 언어로 유지되거나 라틴 문자를 쓰는 언어라면 필요하지 않으며, 이슈가 해결되면 제거하세요.",
+        summary:
+          "도구 결과 뒤에 응답 언어를 다시 알려 주고, 영어로 바뀐 답변은 다시 쓰도록 요청합니다.",
+        title: "언어를 설정했는데도 답변이 영어로 바뀌어요.",
+      },
     },
   },
   catalogue: {
@@ -812,6 +849,21 @@ const ko: SiteContent = {
       name: "quick-look",
       notes: ["macOS qlmanage 필요", "모델이 창을 여는 도구는 제공하지 않음"],
       shortDescription: "Mac에서 최근 파일을 미리 봅니다.",
+    },
+    {
+      ...sharedPlugins["reply-language"],
+      contentsLabel: "훅 2개",
+      description:
+        "Opus 5.5가 language 설정과 달리 사용자에게 보이는 텍스트를 영어로 작성하는 문제(anthropics/claude-code#99704)를 우회하는 임시 플러그인입니다. 한 훅은 사용자 메시지마다, 그리고 도구 결과 뒤에 응답 언어 규칙을 다시 알려 줍니다. 다른 훅은 응답에서 보이는 글자 중 대상 문자의 비율이 30% 미만이면 종료를 한 번 막고, 같은 내용을 대상 언어로 다시 쓰도록 요청합니다.",
+      idealFor:
+        "한국어, 일본어, 중국어, 러시아어, 아랍어, 힌디어, 태국어, 그리스어, 히브리어처럼 고유한 문자를 쓰는 언어를 language 설정에 지정한 Claude Code 사용자에게 적합합니다.",
+      name: "reply-language",
+      notes: [
+        "임시 플러그인이므로 이슈가 해결되면 제거",
+        "python3가 필요하며, 없으면 검사 없이 통과",
+        "이미 표시된 초안은 숨기지 못함",
+      ],
+      shortDescription: "설정한 언어로 답변하도록 유지합니다.",
     },
   ],
   workflow: {
