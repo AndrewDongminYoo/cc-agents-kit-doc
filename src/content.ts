@@ -176,7 +176,7 @@ const sharedPlugins = {
   "guard-hooks": {
     id: "guard-hooks",
     number: "01",
-    version: "0.5.2",
+    version: "0.6.0",
     type: "hooks",
     count: 9,
     contents: [
@@ -264,8 +264,8 @@ function isHookTool(plugin: SharedPlugin, toolId: string): boolean {
 }
 
 export const release = {
-  version: "0.10.0",
-  sha: "da6d8c7e4c54d55685c5fd402d17d8f59488cbf4",
+  version: "0.11.0",
+  sha: "d7040ee5f0ff7b5c4d82e73d77285806937fbbd8",
   pluginCount: inventory.length,
   skillCount: inventory
     .filter((plugin) => plugin.type === "skills")

@@ -48,7 +48,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       result:
         "The hook blocks a recognized secret path while allowing supported example files.",
       mechanism:
-        "It also checks recursive searches that can expose dotenv contents. Development paths designated by the user can defer to normal permissions in auto mode; this access is off by default. Literal paths in prose can also trigger the matcher.",
+        "It also checks recursive searches that can expose dotenv contents. A command that runs only env-keys on dotenv files, a tool shipped with the plugin that prints key names without values, defers to normal permissions in every mode. Development paths designated by the user can defer to normal permissions in auto mode, including a relative path sourced at the start of a command; this access is off by default. Literal paths in prose can also trigger the matcher.",
     },
     "lockfile-drift-check": {
       title: "Notice a manifest edit that leaves the lockfile behind.",
@@ -277,7 +277,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       result:
         "알려진 비밀 정보 경로의 접근은 차단하고, 지원하는 예시 파일은 읽을 수 있게 둡니다.",
       mechanism:
-        "dotenv 내용을 노출할 수 있는 재귀 검색도 점검합니다. 사용자가 지정한 개발 경로는 auto 모드에서 일반 권한 판단에 맡길 수 있으며 기본 설정에서는 꺼져 있습니다. 설명문에 적힌 경로도 검사에 걸릴 수 있습니다.",
+        "dotenv 내용을 노출할 수 있는 재귀 검색도 점검합니다. 플러그인에 포함된 env-keys는 값 없이 키 이름만 출력하는 도구이며, 명령이 dotenv 파일에 대한 env-keys 실행 하나뿐이면 모든 권한 모드에서 일반 권한 판단에 맡깁니다. 사용자가 지정한 개발 경로는 auto 모드에서 일반 권한 판단에 맡길 수 있고, 명령 맨 앞에서 상대 경로로 source하는 경우도 포함됩니다. 이 접근은 기본 설정에서는 꺼져 있습니다. 설명문에 적힌 경로도 검사에 걸릴 수 있습니다.",
     },
     "lockfile-drift-check": {
       title: "의존성 목록만 바꾸고 잠금 파일을 놓쳤는지 알립니다.",
