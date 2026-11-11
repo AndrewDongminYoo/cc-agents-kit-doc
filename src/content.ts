@@ -246,7 +246,7 @@ const sharedPlugins = {
     id: "reply-language",
     number: "06",
     type: "hooks",
-    version: "0.1.0",
+    version: "0.2.0",
   },
 } as const
 
@@ -264,8 +264,8 @@ function isHookTool(plugin: SharedPlugin, toolId: string): boolean {
 }
 
 export const release = {
-  version: "0.11.0",
-  sha: "d7040ee5f0ff7b5c4d82e73d77285806937fbbd8",
+  version: "0.12.0",
+  sha: "6891efbb71e7544dffc5f05c91b081323944e4ef",
   pluginCount: inventory.length,
   skillCount: inventory
     .filter((plugin) => plugin.type === "skills")
@@ -494,7 +494,7 @@ const en: SiteContent = {
       ...sharedPlugins["reply-language"],
       contentsLabel: "2 hooks",
       description:
-        "A temporary workaround for anthropics/claude-code#99704, where Opus 5.5 writes user-facing text in English although the language setting names another language. One hook restates the rule on each user message and after tool results. The other blocks a stop once and asks for the same content in the target language when under 30% of a response's visible letters are in the target script.",
+        "A temporary workaround for anthropics/claude-code#99704, where Opus 5.5 writes user-facing text in English although the language setting names another language. One hook restates the rule on each user message and after tool results. The other blocks a stop once and asks for the same content in the target language when under 30% of a response's visible letters are in the target script. Set CC_REPLY_LANGUAGE_MODELS to a comma-separated list of model ID substrings, such as opus-5-5, to run both hooks only for those models.",
       idealFor:
         "Claude Code users whose language setting names a language with its own script, such as Korean, Japanese, Chinese, Russian, Arabic, Hindi, Thai, Greek, or Hebrew.",
       name: "reply-language",
@@ -854,7 +854,7 @@ const ko: SiteContent = {
       ...sharedPlugins["reply-language"],
       contentsLabel: "훅 2개",
       description:
-        "Opus 5.5가 language 설정과 달리 사용자에게 보이는 텍스트를 영어로 작성하는 문제(anthropics/claude-code#99704)를 우회하는 임시 플러그인입니다. 한 훅은 사용자 메시지마다, 그리고 도구 결과 뒤에 응답 언어 규칙을 다시 알려 줍니다. 다른 훅은 응답에서 보이는 글자 중 대상 문자의 비율이 30% 미만이면 종료를 한 번 막고, 같은 내용을 대상 언어로 다시 쓰도록 요청합니다.",
+        "Opus 5.5가 language 설정과 달리 사용자에게 보이는 텍스트를 영어로 작성하는 문제(anthropics/claude-code#99704)를 우회하는 임시 플러그인입니다. 한 훅은 사용자 메시지마다, 그리고 도구 결과 뒤에 응답 언어 규칙을 다시 알려 줍니다. 다른 훅은 응답에서 보이는 글자 중 대상 문자의 비율이 30% 미만이면 종료를 한 번 막고, 같은 내용을 대상 언어로 다시 쓰도록 요청합니다. CC_REPLY_LANGUAGE_MODELS에 opus-5-5처럼 모델 ID의 일부를 쉼표로 구분해 지정하면, 두 훅이 해당 모델에서만 동작합니다.",
       idealFor:
         "한국어, 일본어, 중국어, 러시아어, 아랍어, 힌디어, 태국어, 그리스어, 히브리어처럼 고유한 문자를 쓰는 언어를 language 설정에 지정한 Claude Code 사용자에게 적합합니다.",
       name: "reply-language",

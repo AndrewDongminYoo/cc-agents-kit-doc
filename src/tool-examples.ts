@@ -222,7 +222,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
     },
     "reply-language-reminder": {
       mechanism:
-        "It never blocks. It reads the target from the language setting or CC_REPLY_LANGUAGE and stays silent for a language without its own script.",
+        "It never blocks. It reads the target from the language setting or CC_REPLY_LANGUAGE and stays silent for a language without its own script. CC_REPLY_LANGUAGE_MODELS can limit it to the listed models.",
       result:
         "The hook adds a sentence that allows English only for text someone other than the user reads, or a one-line reminder after other tool results.",
       title: "Restate the reply language where replies tend to drift.",
@@ -442,7 +442,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
     },
     "reply-language-reminder": {
       mechanism:
-        "작업을 차단하지 않습니다. language 설정이나 CC_REPLY_LANGUAGE에서 대상 언어를 읽고, 고유한 문자가 없는 언어에서는 아무것도 출력하지 않습니다.",
+        "작업을 차단하지 않습니다. language 설정이나 CC_REPLY_LANGUAGE에서 대상 언어를 읽고, 고유한 문자가 없는 언어에서는 아무것도 출력하지 않습니다. CC_REPLY_LANGUAGE_MODELS로 동작할 모델을 제한할 수 있습니다.",
       result:
         "사용자가 아닌 사람이 읽는 텍스트에만 영어를 허용하는 문장을 추가하고, 그 밖의 도구 결과 뒤에는 한 줄짜리 안내를 추가합니다.",
       title: "답변 언어가 바뀌기 쉬운 순간에 응답 언어를 다시 알려 줍니다.",
