@@ -17,7 +17,7 @@ Provide the same content in English and Korean, including an independent AI revi
 - `reply-language` version `0.1.0`: a temporary hooks plugin for anthropics/claude-code#99704, with the `reply-language-reminder` (`UserPromptSubmit`, `PostToolUse`) and `reply-language-check` (`Stop`) hooks; both need `python3` and fail open without it.
 - Do not include untagged changes until a public release update is verified.
 - Keep `cc-agents-kit` as the product and marketplace name.
-- Owner links: [personal website](https://www.donminzzi.kr) and [GitHub](https://github.com/AndrewDongminYoo).
+- Owner links: [personal website](https://donminzzi.kr) and [GitHub](https://github.com/AndrewDongminYoo).
 
 Read the pinned README and plugin manifests before changing product claims.
 Explain that guards protect against accidental mistakes and do not provide a sandbox.

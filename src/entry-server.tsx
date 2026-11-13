@@ -14,7 +14,7 @@ export type Locale = "en" | "ko"
 
 export const site = {
   productName: "cc-agents-kit",
-  ownerUrl: "https://www.donminzzi.kr",
+  ownerUrl: "https://donminzzi.kr",
   sourceUrl: `${sourceRepositoryUrl}/tree/${release.sha}`,
   sourceRevision: release.sha,
 } as const
