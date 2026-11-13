@@ -30,7 +30,7 @@ lint:
     - git-diff-check
     - osv-scanner@2.7.1
     - pinact@4.1.1!
-    - prettier@3.9.10
+    - prettier@3.10.1
 actions:
   definitions:
     - id: project-quality-pre-push
