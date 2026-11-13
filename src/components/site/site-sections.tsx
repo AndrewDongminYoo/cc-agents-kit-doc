@@ -681,7 +681,7 @@ export function SiteFooter({ content, locale }: SharedProps) {
         <a href={`/${locale}/about/`}>{content.footer.about}</a>
         <a href={`/${locale}/contact/`}>{content.footer.contact}</a>
         <a href={`/${locale}/privacy/`}>{content.footer.privacy}</a>
-        <a href="https://www.donminzzi.kr" target="_blank" rel="noreferrer">
+        <a href="https://donminzzi.kr" target="_blank" rel="noreferrer">
           {content.footer.personalSite}
           <ArrowUpRight aria-hidden="true" />
         </a>

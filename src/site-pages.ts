@@ -6,7 +6,7 @@ const owner = {
   koreanName: "유동민",
   alias: "Andrew",
   email: "ydm2790@gmail.com",
-  website: "https://www.donminzzi.kr",
+  website: "https://donminzzi.kr",
   github: "https://github.com/AndrewDongminYoo",
 } as const
 

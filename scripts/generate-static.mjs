@@ -79,7 +79,7 @@ function metadata({
     author: {
       "@type": "Person",
       name: "Dongmin Yu",
-      url: "https://www.donminzzi.kr",
+      url: "https://donminzzi.kr",
       sameAs: ["https://github.com/AndrewDongminYoo"],
     },
   }
