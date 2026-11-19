@@ -26,7 +26,7 @@ lint:
     - oxlint
   enabled:
     - actionlint@1.7.12
-    - eslint@10.14.0
+    - eslint@10.15.0
     - git-diff-check
     - osv-scanner@2.7.1
     - pinact@4.1.1!
