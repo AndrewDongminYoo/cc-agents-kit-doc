@@ -87,6 +87,7 @@ function metadata({
   return `
     <meta name="description" content="${escapeHtml(meta.description)}" />
     <meta name="robots" content="${robots}" />
+    <meta name="naver-site-verification" content="cc97dbb9708a2f8474a0a9a333315abcef02fbb3" />
     <link rel="canonical" href="${canonical}" />
     <link rel="alternate" hreflang="en" href="${english}" />
     <link rel="alternate" hreflang="ko" href="${korean}" />
