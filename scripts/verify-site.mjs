@@ -138,6 +138,11 @@ function verifyDocument(locale, document) {
   )
   requireMatch(
     document,
+    /<meta name="naver-site-verification" content="cc97dbb9708a2f8474a0a9a333315abcef02fbb3"\s*\/>/,
+    `${locale} Naver site verification is missing or incorrect.`
+  )
+  requireMatch(
+    document,
     /<script type="application\/ld\+json">/,
     `${locale} structured data is missing.`
   )
@@ -681,6 +686,23 @@ async function verifyNegativeFixtures() {
     path.join(outputDirectory, "en", "index.html"),
     "utf8"
   )
+  for (const replacement of [
+    "",
+    '<meta name="naver-site-verification" content="incorrect" />',
+  ]) {
+    assert.throws(
+      () =>
+        verifyDocument(
+          "en",
+          document.replace(
+            /<meta name="naver-site-verification"[^>]*\/>/,
+            replacement
+          )
+        ),
+      /Naver site verification is missing or incorrect/,
+      "The validator must reject missing or incorrect Naver verification."
+    )
+  }
   assert.throws(
     () =>
       verifyDocument(
