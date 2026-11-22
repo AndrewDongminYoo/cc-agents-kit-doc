@@ -176,7 +176,7 @@ const sharedPlugins = {
   "guard-hooks": {
     id: "guard-hooks",
     number: "01",
-    version: "0.6.0",
+    version: "0.6.2",
     type: "hooks",
     count: 9,
     contents: [
@@ -194,7 +194,7 @@ const sharedPlugins = {
   "context-handoff": {
     id: "context-handoff",
     number: "02",
-    version: "0.3.0",
+    version: "0.3.4",
     type: "skills",
     count: 8,
     contents: [
@@ -212,7 +212,7 @@ const sharedPlugins = {
   "repo-gate": {
     id: "repo-gate",
     number: "03",
-    version: "0.2.12",
+    version: "0.2.17",
     type: "skills",
     count: 6,
     contents: [
@@ -230,7 +230,7 @@ const sharedPlugins = {
     id: "context-meter",
     number: "04",
     type: "mods",
-    version: "0.1.0",
+    version: "0.1.1",
   },
   "quick-look": {
     contents: ["quick-look"],
@@ -238,15 +238,19 @@ const sharedPlugins = {
     id: "quick-look",
     number: "05",
     type: "mods",
-    version: "0.1.0",
+    version: "0.1.1",
   },
   "reply-language": {
-    contents: ["reply-language-reminder", "reply-language-check"],
-    count: 2,
+    contents: [
+      "reply-language-reminder",
+      "reply-language-ask",
+      "reply-language-check",
+    ],
+    count: 3,
     id: "reply-language",
     number: "06",
     type: "hooks",
-    version: "0.2.0",
+    version: "0.3.1",
   },
 } as const
 
@@ -264,8 +268,8 @@ function isHookTool(plugin: SharedPlugin, toolId: string): boolean {
 }
 
 export const release = {
-  version: "0.12.0",
-  sha: "6891efbb71e7544dffc5f05c91b081323944e4ef",
+  version: "0.14.0",
+  sha: "9f73abf93a03299a609ecb1ce843277ae515173a",
   pluginCount: inventory.length,
   skillCount: inventory
     .filter((plugin) => plugin.type === "skills")
@@ -399,7 +403,7 @@ const en: SiteContent = {
         overlap:
           "A temporary workaround for anthropics/claude-code#99704. Skip it if replies already stay in your language or your language uses the Latin script, and uninstall it once the issue is fixed.",
         summary:
-          "Restate the reply language after tool results and ask for a rewrite when a reply drifted.",
+          "Restate the reply language after tool results, refuse a question dialog written in English, and ask for a rewrite when a reply drifted.",
         title: "Replies drift into English although I set a language.",
       },
     },
@@ -492,9 +496,9 @@ const en: SiteContent = {
     },
     {
       ...sharedPlugins["reply-language"],
-      contentsLabel: "2 hooks",
+      contentsLabel: "3 hooks",
       description:
-        "A temporary workaround for anthropics/claude-code#99704, where Opus 5.5 writes user-facing text in English although the language setting names another language. One hook restates the rule on each user message and after tool results. The other blocks a stop once and asks for the same content in the target language when under 30% of a response's visible letters are in the target script. Set CC_REPLY_LANGUAGE_MODELS to a comma-separated list of model ID substrings, such as opus-5-5, to run both hooks only for those models.",
+        "A temporary workaround for anthropics/claude-code#99704, where Opus 5.5 writes user-facing text in English although the language setting names another language. One hook restates the rule on each user message and after tool results. A second refuses an AskUserQuestion dialog written in English before it opens and asks for it in the target language. The third blocks a stop once and asks for the same content in the target language when under 30% of a response's visible letters are in the target script. Set CC_REPLY_LANGUAGE_MODELS to a comma-separated list of model ID substrings, such as opus-5-5, to run the hooks only for those models.",
       idealFor:
         "Claude Code users whose language setting names a language with its own script, such as Korean, Japanese, Chinese, Russian, Arabic, Hindi, Thai, Greek, or Hebrew.",
       name: "reply-language",
@@ -763,7 +767,7 @@ const ko: SiteContent = {
         overlap:
           "anthropics/claude-code#99704를 우회하는 임시 플러그인입니다. 답변이 이미 설정한 언어로 유지되거나 라틴 문자를 쓰는 언어라면 필요하지 않으며, 이슈가 해결되면 제거하세요.",
         summary:
-          "도구 결과 뒤에 응답 언어를 다시 알려 주고, 영어로 바뀐 답변은 다시 쓰도록 요청합니다.",
+          "도구 결과 뒤에 응답 언어를 다시 알려 주고, 영어로 작성된 질문 대화상자는 거부하며, 영어로 바뀐 답변은 다시 쓰도록 요청합니다.",
         title: "언어를 설정했는데도 답변이 영어로 바뀌어요.",
       },
     },
@@ -852,9 +856,9 @@ const ko: SiteContent = {
     },
     {
       ...sharedPlugins["reply-language"],
-      contentsLabel: "훅 2개",
+      contentsLabel: "훅 3개",
       description:
-        "Opus 5.5가 language 설정과 달리 사용자에게 보이는 텍스트를 영어로 작성하는 문제(anthropics/claude-code#99704)를 우회하는 임시 플러그인입니다. 한 훅은 사용자 메시지마다, 그리고 도구 결과 뒤에 응답 언어 규칙을 다시 알려 줍니다. 다른 훅은 응답에서 보이는 글자 중 대상 문자의 비율이 30% 미만이면 종료를 한 번 막고, 같은 내용을 대상 언어로 다시 쓰도록 요청합니다. CC_REPLY_LANGUAGE_MODELS에 opus-5-5처럼 모델 ID의 일부를 쉼표로 구분해 지정하면, 두 훅이 해당 모델에서만 동작합니다.",
+        "Opus 5.5가 language 설정과 달리 사용자에게 보이는 텍스트를 영어로 작성하는 문제(anthropics/claude-code#99704)를 우회하는 임시 플러그인입니다. 첫 번째 훅은 사용자 메시지마다, 그리고 도구 결과 뒤에 응답 언어 규칙을 다시 알려 줍니다. 두 번째 훅은 영어로 작성된 AskUserQuestion 대화상자가 열리기 전에 호출을 거부하고, 같은 질문을 대상 언어로 다시 쓰도록 요청합니다. 세 번째 훅은 응답에서 보이는 글자 중 대상 문자의 비율이 30% 미만이면 종료를 한 번 막고, 같은 내용을 대상 언어로 다시 쓰도록 요청합니다. CC_REPLY_LANGUAGE_MODELS에 opus-5-5처럼 모델 ID의 일부를 쉼표로 구분해 지정하면, 세 훅이 해당 모델에서만 동작합니다.",
       idealFor:
         "한국어, 일본어, 중국어, 러시아어, 아랍어, 힌디어, 태국어, 그리스어, 히브리어처럼 고유한 문자를 쓰는 언어를 language 설정에 지정한 Claude Code 사용자에게 적합합니다.",
       name: "reply-language",
