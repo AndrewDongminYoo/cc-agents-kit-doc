@@ -92,7 +92,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       result:
         "The skill prints a self-contained brief with the same FIXED and RECAP sections as a compaction summary, or writes a handoff file when requested or triggered by a context threshold.",
       mechanism:
-        "The task, acceptance criteria, and user constraints are copied word for word. External statuses name a source for the receiver to re-read before acting.",
+        "The task, acceptance criteria, and user constraints are copied word for word. Each decision is recorded with its reason and the alternative it replaced. External statuses name a source for the receiver to re-read before acting.",
     },
     "session-export": {
       title: "Turn a session into something you can read later.",
@@ -109,7 +109,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
         "You discover a project convention that future sessions should know.",
       result: "The finding is routed to the relevant memory store and index.",
       mechanism:
-        "The destination follows the intended audience. Memory does not replace repository documentation or an unfinished-work handoff.",
+        "The destination follows the intended audience. Memory does not replace repository documentation or an unfinished-work handoff. For the global instruction files, the skill proposes the exact sentence and leaves the edit to you.",
     },
     wayfinder: {
       title: "Find the next decision in a large, unclear task.",
@@ -140,7 +140,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       trigger:
         "Claude Code compacts the conversation, manually or automatically.",
       result:
-        "The hook supplies the summary instructions: a FIXED block copies the task, acceptance criteria, and user constraints word for word, and a RECAP block restates the current state.",
+        "The hook supplies the summary instructions: a FIXED block copies the task, acceptance criteria, and user constraints word for word, and a RECAP block restates the current state, including each decision with its reason.",
       mechanism:
         "It never blocks or delays a compaction and prints the brief even for malformed input. Set CC_GUARD_DISABLE_COMPACTION_BRIEF=1 to turn it off.",
     },
@@ -185,7 +185,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       result:
         "The advisory and dependency path guide the fix, followed by verification of the resolved graph.",
       mechanism:
-        "Overrides are scoped by installed major where needed. Suppression requires reachability evidence and explicit approval.",
+        "Overrides are scoped by installed major where needed. An override is removed only after the graph without it is checked against the advisory ranges. Suppression requires reachability evidence and explicit approval.",
     },
     "cspell-triage": {
       title: "Fix spelling reports without filling a dictionary with mistakes.",
@@ -228,6 +228,15 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       title: "Restate the reply language where replies tend to drift.",
       trigger:
         "A subagent reports back in English, or a tool result arrives, while the language setting names Korean.",
+    },
+    "reply-language-ask": {
+      mechanism:
+        "It judges each question with its header, option labels, and option descriptions, using the same thresholds as the stop check. Option previews and Markdown table rows are not judged. Set CC_GUARD_DISABLE_REPLY_LANGUAGE_ASK=1 to turn it off.",
+      result:
+        "The hook refuses the call before the dialog opens and asks for the same question in the target language.",
+      title: "Keep question dialogs in the reply language.",
+      trigger:
+        "The agent calls AskUserQuestion with a question written in English while the language setting names Korean.",
     },
     "reply-language-check": {
       mechanism:
@@ -319,7 +328,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       result:
         "압축 요약과 같은 FIXED·RECAP 항목으로 요약을 채팅에 출력하거나, 파일로 요청했거나 컨텍스트 임계치에 도달한 경우 인수인계 파일을 작성합니다.",
       mechanism:
-        "작업 요청, 완료 기준, 사용자 제약은 원문 그대로 옮깁니다. 외부 상태에는 다음 세션이 다시 확인할 수 있는 출처를 함께 적습니다.",
+        "작업 요청, 완료 기준, 사용자 제약은 원문 그대로 옮깁니다. 결정 사항은 그 이유와 기각한 대안을 함께 기록합니다. 외부 상태에는 다음 세션이 다시 확인할 수 있는 출처를 함께 적습니다.",
     },
     "session-export": {
       title: "지난 대화를 나중에도 읽기 편한 기록으로 바꿉니다.",
@@ -334,7 +343,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       trigger: "이 프로젝트에서 계속 지켜야 할 관례를 발견했습니다.",
       result: "그 내용을 사용할 대상에 맞는 메모리 저장소와 색인에 기록합니다.",
       mechanism:
-        "누가 읽을 정보인지에 따라 저장 위치를 고릅니다. 저장소 문서나 미완료 작업의 인수인계를 대신하는 기능은 아닙니다.",
+        "누가 읽을 정보인지에 따라 저장 위치를 고릅니다. 저장소 문서나 미완료 작업의 인수인계를 대신하는 기능은 아닙니다. 전역 지침 파일은 직접 고치지 않고, 추가할 문장을 그대로 제안해서 사용자가 수정하도록 합니다.",
     },
     wayfinder: {
       title: "큰 작업에서 다음에 결정할 문제를 찾습니다.",
@@ -364,7 +373,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       title: "컨텍스트를 압축해도 남은 작업에 필요한 내용은 유지합니다.",
       trigger: "Claude Code가 수동 또는 자동으로 대화를 압축합니다.",
       result:
-        "압축 요약의 작성 지침을 제공합니다. 작업 요청, 완료 기준, 사용자 제약은 FIXED 항목에 원문 그대로 옮기고, 현재 상태는 RECAP 항목에 새로 정리합니다.",
+        "압축 요약의 작성 지침을 제공합니다. 작업 요청, 완료 기준, 사용자 제약은 FIXED 항목에 원문 그대로 옮기고, 현재 상태는 결정 사항과 그 이유를 포함해 RECAP 항목에 새로 정리합니다.",
       mechanism:
         "압축을 차단하거나 늦추지 않으며, 입력이 잘못되어도 지침을 출력합니다. CC_GUARD_DISABLE_COMPACTION_BRIEF=1로 끌 수 있습니다.",
     },
@@ -406,7 +415,7 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       result:
         "보안 공지와 의존성 경로를 확인해 수정하고, 실제로 해결된 의존성 구성을 검증합니다.",
       mechanism:
-        "필요한 override는 설치된 메이저 버전별로 범위를 정합니다. 보고 제외에는 도달 가능성 근거와 명시적인 승인이 필요합니다.",
+        "필요한 override는 설치된 메이저 버전별로 범위를 정합니다. override는 그것을 뺀 의존성 구성을 보안 공지의 영향 범위와 대조한 뒤에만 제거합니다. 보고 제외에는 도달 가능성 근거와 명시적인 승인이 필요합니다.",
     },
     "cspell-triage": {
       title: "맞춤법 경고를 무조건 사전에 넣지 않고 분류합니다.",
@@ -448,6 +457,15 @@ export const toolExamples: Record<Locale, Record<string, ToolExample>> = {
       title: "답변 언어가 바뀌기 쉬운 순간에 응답 언어를 다시 알려 줍니다.",
       trigger:
         "language 설정이 한국어인데 서브에이전트가 영어로 보고하거나 도구 결과가 도착합니다.",
+    },
+    "reply-language-ask": {
+      mechanism:
+        "질문마다 머리글, 선택지 이름, 선택지 설명을 함께 묶어 종료 점검과 같은 기준으로 판단합니다. 선택지 미리보기와 Markdown 표의 행은 판단하지 않습니다. CC_GUARD_DISABLE_REPLY_LANGUAGE_ASK=1로 끌 수 있습니다.",
+      result:
+        "대화상자가 열리기 전에 호출을 거부하고, 같은 질문을 대상 언어로 다시 쓰도록 요청합니다.",
+      title: "질문 대화상자도 응답 언어로 유지합니다.",
+      trigger:
+        "language 설정이 한국어인데 에이전트가 영어로 작성한 질문으로 AskUserQuestion을 호출합니다.",
     },
     "reply-language-check": {
       mechanism:
